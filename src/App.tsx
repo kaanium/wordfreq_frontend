@@ -28,6 +28,7 @@ const App = () => {
             if (response && response.ok) {
                 const loggedInUser = await response.json();
                 setUser(loggedInUser);
+                setReviewCount(loggedInUser.reviewCount);
                 fetchReviewWords(); // Fetch review words after login
             } else {
                 console.error("Login failed:", response);
@@ -82,6 +83,7 @@ const App = () => {
             .then((loggedInUser) => {
                 if (loggedInUser) {
                     setUser(loggedInUser);
+                    setReviewCount(loggedInUser.reviewCount);
                     fetchReviewWords(); // Fetch review words after confirming user is logged in
                 }
             })
@@ -104,27 +106,18 @@ const App = () => {
             case "text":
                 return (
                     <>
-                        <h1 className="text-4xl font-extrabold text-center mb-8 text-gray-800">
-                            Text Word Frequency Analyzer
-                        </h1>
                         <WordFrequencyApp />
                     </>
                 );
             case "epub":
                 return (
                     <>
-                        <h1 className="text-4xl font-extrabold text-center mb-8 text-gray-800">
-                            ePub Word Frequency Analyzer
-                        </h1>
                         <EpubFrequencyApp />
                     </>
                 );
             case "reviews":
                 return (
                     <>
-                        <h1 className="text-4xl font-extrabold text-center mb-8 text-gray-800">
-                            Reviews
-                        </h1>
                         <ReviewsPage
                             words={reviewWords}
                             onReviewComplete={fetchReviewWords}

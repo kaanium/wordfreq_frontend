@@ -8,11 +8,37 @@ interface FlashcardWord {
     meanings: string[];
     nextReview: string;
     interval: number;
+    state?: "learned" | "relearning1" | "relearning2";
 }
 
 interface ReviewsPageProps {
     words: FlashcardWord[];
     onReviewComplete: () => void;
+}
+
+function updateCardState(
+    currentCard: FlashcardWord,
+    isCorrect: boolean,
+    words: FlashcardWord[]
+) {
+    if (!isCorrect) {
+        if (
+            currentCard.state === "learned" ||
+            currentCard.state === "relearning2"
+        ) {
+            currentCard.state = "relearning1";
+            words.push(currentCard);
+        } else if (currentCard.state === "relearning1") {
+            // Stay in relearning1 but keep the card in the queue
+            words.push(currentCard);
+        }
+    } else {
+        if (currentCard.state === "relearning1") {
+            currentCard.state = "relearning2";
+            words.push(currentCard);
+        }
+        // Correct answers for "learned" or "relearning2" require no action
+    }
 }
 
 export default function ReviewsPage({
@@ -30,9 +56,6 @@ export default function ReviewsPage({
         incorrect: 0,
     });
     const [hasFlipped, setHasFlipped] = useState(false);
-    const [correctCount, setCorrectCount] = useState<Record<string, number>>(
-        {}
-    );
 
     useEffect(() => {
         if (words && words.length > 0) {
@@ -43,7 +66,6 @@ export default function ReviewsPage({
             setCurrentIndex(0);
             setIsFlipped(false);
             setHasFlipped(false);
-            setCorrectCount({});
         }
     }, [words]);
 
@@ -67,22 +89,10 @@ export default function ReviewsPage({
 
             updateReviewStats(isCorrect);
 
-            // const updatedQueue = [...words];
-            // console.log("Updated Queue:", updatedQueue);
-            // console.log("words:", words);
-            const updatedCount = { ...correctCount };
-
-            updatedCount[word] = isCorrect ? (updatedCount[word] || 0) + 1 : -1;
-
-            const shouldGraduate = updatedCount[word] >= 1;
-
             const [currentCard] = words.splice(currentIndex, 1);
 
-            if (!shouldGraduate) {
-                words.push(currentCard);
-            }
+            updateCardState(currentCard, isCorrect, words);
 
-            setCorrectCount(updatedCount);
             setReviewWords(words);
             setIsFlipped(false);
             setHasFlipped(false);
@@ -249,7 +259,7 @@ export default function ReviewsPage({
                                     <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                                     <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                                 </svg>
-                                {currentIndex + 1}/{reviewWords.length}
+                                {reviewWords.length}
                             </span>
                         </div>
                     </div>

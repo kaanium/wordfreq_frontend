@@ -22,7 +22,7 @@ const Popup: React.FC<PopupProps> = ({ title, items, onClose }) => {
         text: string;
         type: "success" | "error" | "info";
     } | null>(null);
-    const itemsPerPage = 10;
+    const itemsPerPage = 20;
 
     useEffect(() => {
         // Animation effect when opening
@@ -171,7 +171,7 @@ const Popup: React.FC<PopupProps> = ({ title, items, onClose }) => {
             }`}
         >
             <div
-                className={`bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col transition-transform duration-300 ${
+                className={`bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col transition-transform duration-300  ${
                     isVisible ? "scale-100" : "scale-95"
                 }`}
             >
