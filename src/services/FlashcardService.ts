@@ -40,6 +40,19 @@ export async function getWordsFromFlashcard() {
     });
 }
 
+export async function getReviewWordsFromFlashcard() {
+    const token = localStorage.getItem("token");
+    if (!token) return null;
+
+    return await fetch("http://localhost:3000/api/get-review-words", {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+    });
+}
+
 export async function reviewFlashcard(word: string, answer: boolean) {
     const token = localStorage.getItem("token");
     if (!token) return null;

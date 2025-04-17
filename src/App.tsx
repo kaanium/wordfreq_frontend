@@ -5,7 +5,7 @@ import ReviewsPage from "./components/Reviews";
 import AuthPage from "./components/authentication/AuthPage";
 import Header from "./components/Header";
 import { getUser } from "./services/AuthenticationService";
-import { getWordsFromFlashcard } from "./services/FlashcardService";
+import { getReviewWordsFromFlashcard } from "./services/FlashcardService";
 
 interface FlashcardWord {
     id: string;
@@ -50,17 +50,12 @@ const App = () => {
 
     const fetchReviewWords = async () => {
         try {
-            const response = await getWordsFromFlashcard();
+            const response = await getReviewWordsFromFlashcard();
             if (response) {
                 const data = await response.json();
                 if (data && data.length > 0) {
-                    const today = new Date();
-                    const dueWords = data.filter((word: FlashcardWord) => {
-                        const reviewDate = new Date(word.nextReview);
-                        return reviewDate <= today;
-                    });
-                    setReviewWords(dueWords);
-                    setReviewCount(dueWords.length);
+                    setReviewWords(data);
+                    setReviewCount(data.length);
                 } else {
                     setReviewWords([]);
                     setReviewCount(0);
