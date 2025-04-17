@@ -48,6 +48,7 @@
   },
   "devDependencies": {
     "@babel/plugin-transform-modules-commonjs": "^7.26.3",
+    "@netlify/plugin-nextjs": "^5.10.6",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17"
