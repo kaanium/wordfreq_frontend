@@ -40,6 +40,7 @@ const Popup: React.FC<PopupProps> = ({ title, items, onClose }) => {
         return () => {
             document.removeEventListener("keydown", handleEscKey);
         };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
