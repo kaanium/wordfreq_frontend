@@ -25,10 +25,8 @@ const Popup: React.FC<PopupProps> = ({ title, items, onClose }) => {
     const itemsPerPage = 20;
 
     useEffect(() => {
-        // Animation effect when opening
         setIsVisible(true);
 
-        // Add event listener for escape key
         const handleEscKey = (event: KeyboardEvent) => {
             if (event.key === "Escape") {
                 handleClose();
@@ -37,10 +35,8 @@ const Popup: React.FC<PopupProps> = ({ title, items, onClose }) => {
 
         document.addEventListener("keydown", handleEscKey);
 
-        // Fetch existing words
         fetchExistingWords();
 
-        // Cleanup
         return () => {
             document.removeEventListener("keydown", handleEscKey);
         };
@@ -100,11 +96,11 @@ const Popup: React.FC<PopupProps> = ({ title, items, onClose }) => {
     const handleAddAllNewWords = async () => {
         setIsLoading(true);
         try {
-
             const newWords = items
                 .filter(
                     (item) =>
-                        !existingWords.includes(item.word.toLowerCase()) && item.meanings &&
+                        !existingWords.includes(item.word.toLowerCase()) &&
+                        item.meanings &&
                         item.meanings.length > 0
                 )
                 .map((item) => item.word);
@@ -112,7 +108,8 @@ const Popup: React.FC<PopupProps> = ({ title, items, onClose }) => {
             const newMeanings = items
                 .filter(
                     (item) =>
-                        !existingWords.includes(item.word.toLowerCase()) && item.meanings &&
+                        !existingWords.includes(item.word.toLowerCase()) &&
+                        item.meanings &&
                         item.meanings.length > 0
                 )
                 .map((item) => item.meanings);
@@ -122,7 +119,6 @@ const Popup: React.FC<PopupProps> = ({ title, items, onClose }) => {
                 setIsLoading(false);
                 return;
             }
-
 
             const response = await addWordsBulkToFlashcard(
                 newWords,

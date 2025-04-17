@@ -29,7 +29,7 @@ const App = () => {
                 const loggedInUser = await response.json();
                 setUser(loggedInUser);
                 setReviewCount(loggedInUser.reviewCount);
-                fetchReviewWords(); // Fetch review words after login
+                fetchReviewWords();
             } else {
                 console.error("Login failed:", response);
             }
@@ -84,7 +84,7 @@ const App = () => {
                 if (loggedInUser) {
                     setUser(loggedInUser);
                     setReviewCount(loggedInUser.reviewCount);
-                    fetchReviewWords(); // Fetch review words after confirming user is logged in
+                    fetchReviewWords();
                 }
             })
             .catch((e) => {

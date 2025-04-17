@@ -1,7 +1,9 @@
+import { API_URL } from "../config/constants";
+
 export async function addWordFlashcard(word: string, meanings: string[]) {
     const token = localStorage.getItem("token");
     if (!token) return null;
-    return await fetch("http://localhost:3000/api/add-word", {
+    return await fetch(`${API_URL}/add-word`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -17,7 +19,7 @@ export async function addWordsBulkToFlashcard(
 ) {
     const token = localStorage.getItem("token");
     if (!token) return null;
-    return await fetch("http://localhost:3000/api/add-words-bulk", {
+    return await fetch(`${API_URL}/add-words-bulk`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -31,7 +33,7 @@ export async function getWordsFromFlashcard() {
     const token = localStorage.getItem("token");
     if (!token) return null;
 
-    return await fetch("http://localhost:3000/api/get-words", {
+    return await fetch(`${API_URL}/get-words`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -44,7 +46,7 @@ export async function getReviewWordsFromFlashcard() {
     const token = localStorage.getItem("token");
     if (!token) return null;
 
-    return await fetch("http://localhost:3000/api/get-review-words", {
+    return await fetch(`${API_URL}/get-review-words`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -57,7 +59,7 @@ export async function reviewFlashcard(word: string, answer: boolean) {
     const token = localStorage.getItem("token");
     if (!token) return null;
 
-    return await fetch("http://localhost:3000/api/review", {
+    return await fetch(`${API_URL}/review`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
