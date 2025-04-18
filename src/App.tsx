@@ -33,6 +33,10 @@ const App = () => {
         localStorage.setItem("theme", "light");
     };
 
+    const handleAddNewWord = (words: string[]) => {
+        setExistingWords(words);
+    }
+
     const detectColorScheme = () => {
         let theme: string | null = "light";
 
@@ -249,6 +253,7 @@ const App = () => {
                             items={lastAnalyzedWords}
                             onClose={() => setIsPopupVisible(false)}
                             initialExistingWords={existingWords}
+                            onAddNewWord={handleAddNewWord}
                         />
                     )}
                 </div>

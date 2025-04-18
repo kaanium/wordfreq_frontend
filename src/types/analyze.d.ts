@@ -3,4 +3,5 @@ export interface PopupProps {
     items: { word: string; frequency: number; meanings: string[] }[];
     onClose: () => void;
     initialExistingWords?: string[];
+    onAddNewWord: (word: string[]) => void;
 }
