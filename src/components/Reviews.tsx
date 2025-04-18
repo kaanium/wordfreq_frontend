@@ -1,10 +1,72 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     reviewFlashcard,
     updateReviewCount,
 } from "../services/FlashcardService";
 import { FlashcardWord, ReviewsPageProps } from "../types";
+
+interface TapSafeDivProps extends React.HTMLAttributes<HTMLDivElement> {
+    onClick: () => void;
+    children: React.ReactNode;
+}
+
+const TapSafeDiv: React.FC<TapSafeDivProps> = ({
+    onClick,
+    children,
+    ...props
+}) => {
+    const isLockedRef = useRef(false);
+    const isExecutingRef = useRef(false);
+    const tapStartTimeRef = useRef<number | null>(null);
+
+    const handleTapStart = useCallback(() => {
+        tapStartTimeRef.current = Date.now();
+    }, []);
+
+    const handleTapEnd = useCallback(
+        (e: React.MouseEvent | React.TouchEvent) => {
+            const tapStart = tapStartTimeRef.current;
+
+            if (tapStart && Date.now() - tapStart > 200) {
+                e.preventDefault();
+                return;
+            }
+
+            if (isExecutingRef.current) {
+                isLockedRef.current = true;
+                return;
+            }
+
+            isExecutingRef.current = true;
+
+            setTimeout(() => {
+                if (!isLockedRef.current) {
+                    onClick();
+                } else {
+                    isLockedRef.current = false;
+                }
+                isExecutingRef.current = false;
+            }, 250);
+        },
+        [onClick]
+    );
+
+    return (
+        <div
+            onClick={(e) => e.preventDefault()}
+            onMouseDown={handleTapStart}
+            onTouchStart={handleTapStart}
+            onMouseUp={handleTapEnd}
+            onTouchEnd={handleTapEnd}
+            onContextMenu={(e) => e.preventDefault()}
+            className="cursor-pointer bg-white dark:bg-[#2C2C3C] p-6 rounded-xl shadow-sm border border-gray-100 dark:border-[#32324A]"
+            {...props}
+        >
+            {children}
+        </div>
+    );
+};
 
 function updateCardState(
     currentCard: FlashcardWord,
@@ -280,17 +342,16 @@ export default function ReviewsPage({
                     </h1>
 
                     <div className="space-y-6">
-                        <div className="bg-white dark:bg-[#2C2C3C] p-6 rounded-xl shadow-sm border border-gray-100 dark:border-[#32324A]">
+                        <TapSafeDiv
+                            onClick={() => handleInitialFlip(!isFlipped)}
+                        >
                             <div className="text-center mb-4">
                                 <h3 className="text-3xl font-bold text-purple-700 dark:text-purple-400">
                                     {reviewWords[0].key}
                                 </h3>
                             </div>
 
-                            <div
-                                className="cursor-pointer min-h-[80px] flex flex-col justify-center"
-                                onClick={() => handleInitialFlip(!isFlipped)}
-                            >
+                            <div className="min-h-[80px] flex flex-col justify-center">
                                 <AnimatePresence mode="wait">
                                     {!isFlipped ? (
                                         <motion.div
@@ -363,7 +424,7 @@ export default function ReviewsPage({
                                     )}
                                 </AnimatePresence>
                             </div>
-                        </div>
+                        </TapSafeDiv>
 
                         <div className="flex justify-center">
                             {hasFlipped && (
