@@ -117,16 +117,29 @@ const App = () => {
         }
     };
 
+    const closeModalOnClickOutside = (e: MouseEvent) => {
+        const a = document.querySelector("#popup");
+        if (a && !a.contains(e.target as Node)) {
+            setIsPopupVisible(false);
+            document.removeEventListener("mousedown", closeModalOnClickOutside);
+        }
+    };
+
+    const openModal = () => {
+        setIsPopupVisible(true);
+        document.addEventListener("mousedown", closeModalOnClickOutside);
+    };
+
     const handleOpenLastAnalysis = () => {
         if (lastAnalyzedWords.length > 0) {
-            setIsPopupVisible(true);
+            openModal();
         }
     };
 
     const handleAnalyzeComplete = async (words: any[]) => {
         await fetchExistingWords();
         setLastAnalyzedWords(words);
-        setIsPopupVisible(true);
+        openModal();
     };
 
     useEffect(() => {
@@ -234,35 +247,6 @@ const App = () => {
                                 title="Show last analysis"
                             >
                                 <svg
-                                   xmlns="http://www.w3.org/2000/svg"
-                                   className="h-6 w-6"
-                                   viewBox="0 0 24 24"
-                                   fill="none"
-                                   stroke="currentColor"
-                                   strokeWidth="2"
-                                   strokeLinecap="round"
-                                   strokeLinejoin="round"
-                                >
-                                    <g
-                                        id="SVGRepo_bgCarrier"
-                                        stroke-width="0"
-                                    ></g>
-                                    <g
-                                        id="SVGRepo_tracerCarrier"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                    ></g>
-                                    <g id="SVGRepo_iconCarrier">
-                                        {" "}
-                                        <path
-                                            d="M15.4862 9C15.5559 9.45126 15.5119 10.0367 15.3595 10.7008M15.3595 10.7008C14.647 13.8037 11.5647 18.6233 6.63251 19.4919C6.63251 19.4919 5.28441 19.7802 4.54266 19.0227C3.28198 17.7351 3.41266 14.3283 14.0208 11.0015C14.456 10.865 14.9075 10.764 15.3595 10.7008ZM15.3595 10.7008C19.6125 10.1058 23.899 12.8624 14.8758 21M7.53125 6C9 6 13 5.5 15.5352 5M11.5306 3C10.5 7 9.5 10.5 11.5306 19"
-                                            stroke-width="2"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                        ></path>{" "}
-                                    </g>
-                                </svg>
-                                {/* <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     className="h-6 w-6"
                                     viewBox="0 0 24 24"
@@ -272,8 +256,25 @@ const App = () => {
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
                                 >
-                                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-                                </svg> */}
+                                    <g
+                                        id="SVGRepo_bgCarrier"
+                                        strokeWidth="0"
+                                    ></g>
+                                    <g
+                                        id="SVGRepo_tracerCarrier"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    ></g>
+                                    <g id="SVGRepo_iconCarrier">
+                                        {" "}
+                                        <path
+                                            d="M15.4862 9C15.5559 9.45126 15.5119 10.0367 15.3595 10.7008M15.3595 10.7008C14.647 13.8037 11.5647 18.6233 6.63251 19.4919C6.63251 19.4919 5.28441 19.7802 4.54266 19.0227C3.28198 17.7351 3.41266 14.3283 14.0208 11.0015C14.456 10.865 14.9075 10.764 15.3595 10.7008ZM15.3595 10.7008C19.6125 10.1058 23.899 12.8624 14.8758 21M7.53125 6C9 6 13 5.5 15.5352 5M11.5306 3C10.5 7 9.5 10.5 11.5306 19"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        ></path>{" "}
+                                    </g>
+                                </svg>
                             </button>
                         )}
                     {isPopupVisible && (

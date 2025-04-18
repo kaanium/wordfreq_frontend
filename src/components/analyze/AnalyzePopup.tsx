@@ -26,6 +26,7 @@ const Popup: React.FC<PopupProps> = ({
         type: "success" | "error" | "info";
     } | null>(null);
     const itemsPerPage = 20;
+    
 
     useEffect(() => {
         onAddNewWord(existingWords);
@@ -168,12 +169,12 @@ const Popup: React.FC<PopupProps> = ({
     };
 
     return (
-        <div
+        <div 
             className={`fixed inset-0 bg-gray-900 bg-opacity-75 dark:bg-black dark:bg-opacity-80 flex justify-center items-center z-50 p-4 transition-opacity duration-300 ${
                 isVisible ? "opacity-100" : "opacity-0"
             }`}
         >
-            <div
+            <div id="popup"
                 className={`bg-white dark:bg-[#1E1E2A] rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col transition-transform duration-300  ${
                     isVisible ? "scale-100" : "scale-95"
                 }`}
