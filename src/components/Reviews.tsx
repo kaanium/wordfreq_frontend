@@ -47,7 +47,7 @@ const TapSafeDiv: React.FC<TapSafeDivProps> = ({
                     isLockedRef.current = false;
                 }
                 isExecutingRef.current = false;
-            }, 250);
+            }, 200);
         },
         [onClick]
     );
@@ -125,8 +125,8 @@ export default function ReviewsPage({
             setLoading(false);
             setReviewComplete(false);
             setReviewStats({ correct: 0, incorrect: 0 });
-            setIsFlipped(false);
-            setHasFlipped(false);
+            // setIsFlipped(false);
+            // setHasFlipped(false);
         }
     }, [words]);
 
