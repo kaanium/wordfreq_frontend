@@ -180,10 +180,10 @@ export default function ReviewsPage({
                         </div>
                         <div className="text-center">
                             <div className="text-3xl font-bold text-purple-500">
-                                {words.length}
+                                %{reviewStats.correct > 0 ? Math.round((reviewStats.correct / (reviewStats.correct + reviewStats.incorrect)) * 100).toPrecision(4) : 0}
                             </div>
                             <div className="text-sm text-gray-500 dark:text-[#A0A0B8]">
-                                Cards
+                                Retention
                             </div>
                         </div>
                     </div>
