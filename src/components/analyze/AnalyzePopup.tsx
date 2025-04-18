@@ -28,6 +28,10 @@ const Popup: React.FC<PopupProps> = ({
     const itemsPerPage = 20;
 
     useEffect(() => {
+        onAddNewWord(existingWords);
+    }, [existingWords, onAddNewWord]);
+
+    useEffect(() => {
         setIsVisible(true);
 
         const handleEscKey = (event: KeyboardEvent) => {
@@ -77,7 +81,6 @@ const Popup: React.FC<PopupProps> = ({
                     type: "success",
                 });
                 setExistingWords((prev) => [...prev, word.toLowerCase()]);
-                onAddNewWord(existingWords);
             } else {
                 setMessage({ text: `Failed to add "${word}"`, type: "error" });
             }
@@ -129,7 +132,6 @@ const Popup: React.FC<PopupProps> = ({
                     ...prev,
                     ...newWords.map((w) => w.toLowerCase()),
                 ]);
-                onAddNewWord(existingWords);
             } else {
                 setMessage({ text: "Failed to add words", type: "error" });
             }
