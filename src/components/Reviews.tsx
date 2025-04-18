@@ -114,7 +114,6 @@ export default function ReviewsPage({
         () => words
     );
     const [isFlipped, setIsFlipped] = useState(false);
-    const [loading, setLoading] = useState(false);
     const [reviewComplete, setReviewComplete] = useState(false);
     const [reviewStats, setReviewStats] = useState({
         correct: 0,
@@ -125,7 +124,6 @@ export default function ReviewsPage({
     useEffect(() => {
         if (words && words.length > 0) {
             setReviewWords(words);
-            setLoading(false);
             setReviewComplete(false);
             setReviewStats({ correct: 0, incorrect: 0 });
             // setIsFlipped(false);
@@ -173,20 +171,14 @@ export default function ReviewsPage({
         onReviewComplete(); // Fetch fresh words
     };
 
-    if (loading) {
-        return (
-            <div className="container mx-auto max-w-4xl">
-                <div className="flex justify-center items-center py-20">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
-                </div>
-            </div>
-        );
-    }
+
 
     return (
         <div className="container mx-auto max-w-4xl">
+                <div className="max-w-4xl mx-auto bg-white dark:bg-[#1E1E2A] rounded-2xl shadow-lg overflow-hidden p-8 my-8 border border-gray-100 dark:border-[#32324A]">
+
             {reviewWords.length === 0 && !reviewComplete ? (
-                <div className="bg-white dark:bg-[#1E1E2A] rounded-2xl shadow-lg p-8 text-center">
+                <div className="bg-white dark:bg-[#1E1E2A] rounded-2xl p-8 text-center">
                     <div className="w-20 h-20 bg-purple-100 dark:bg-[#2A2A3A] rounded-full flex items-center justify-center mx-auto mb-6">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -212,7 +204,7 @@ export default function ReviewsPage({
                     </p>
                 </div>
             ) : reviewComplete ? (
-                <div className="bg-white dark:bg-[#1E1E2A] rounded-2xl shadow-lg p-8 text-center">
+                <div className="bg-white dark:bg-[#1E1E2A] rounded-2xl  p-8 text-center">
                     <div className="w-20 h-20 bg-purple-100 dark:bg-[#2A2A3A] rounded-full flex items-center justify-center mx-auto mb-6">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -285,8 +277,7 @@ export default function ReviewsPage({
                         Check Again
                     </button>
                 </div>
-            ) : (
-                <div className="max-w-4xl mx-auto bg-white dark:bg-[#1E1E2A] rounded-2xl shadow-lg overflow-hidden p-8 my-8 border border-gray-100 dark:border-[#32324A]">
+            ) : (<div>
                     <h1 className="text-3xl justify-between font-extrabold text-center mb-8 text-gray-800 dark:text-[#F8F8FC] flex items-center gap-2">
                         <div></div>
                         <div className="flex items-center gap-2">
@@ -483,8 +474,8 @@ export default function ReviewsPage({
                             )}
                         </div>
                     </div>
-                </div>
+            </div>
             )}
         </div>
-    );
+     </div>)
 }
