@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { reviewFlashcard } from "../services/FlashcardService";
+import { reviewFlashcard, updateReviewCount } from "../services/FlashcardService";
 import { FlashcardWord, ReviewsPageProps } from "../types";
-
-
 
 function updateCardState(
     currentCard: FlashcardWord,
@@ -25,18 +23,18 @@ function updateCardState(
         if (currentCard.state === "relearning1") {
             currentCard.state = "relearning2";
             words.push(currentCard);
-        }
-        else {
+        } else {
             updateRemainingWordCount();
         }
         // Correct answers for "learned" or "relearning2" require no action
     }
 }
 
-const updateRemainingWordCount = () => {
+const updateRemainingWordCount = async () => {
     document.querySelectorAll("#reviewCount").forEach((el) => {
         const count = parseInt(el.textContent || "0", 10);
         el.textContent = (count - 1).toString();
+        updateReviewCount(count - 1);
     });
 };
 
@@ -76,8 +74,6 @@ export default function ReviewsPage({
             incorrect: !isCorrect ? prev.incorrect + 1 : prev.incorrect,
         }));
     };
-
-
 
     const handleReview = async (word: string, isCorrect: boolean) => {
         try {

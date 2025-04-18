@@ -55,6 +55,20 @@ export async function getReviewWordsFromFlashcard() {
     });
 }
 
+export async function updateReviewCount(count: number) {
+    const token = localStorage.getItem("token");
+    if (!token) return null;
+
+    return await fetch(`${API_URL}/update-review-count`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ count }),
+    });
+}
+
 export async function reviewFlashcard(word: string, answer: boolean) {
     const token = localStorage.getItem("token");
     if (!token) return null;
