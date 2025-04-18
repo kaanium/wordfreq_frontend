@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { reviewFlashcard, updateReviewCount } from "../services/FlashcardService";
+import {
+    reviewFlashcard,
+    updateReviewCount,
+} from "../services/FlashcardService";
 import { FlashcardWord, ReviewsPageProps } from "../types";
 
 function updateCardState(
@@ -42,7 +45,9 @@ export default function ReviewsPage({
     words,
     onReviewComplete,
 }: ReviewsPageProps) {
-    const [reviewWords, setReviewWords] = useState<FlashcardWord[]>([]);
+    const [reviewWords, setReviewWords] = useState<FlashcardWord[]>(
+        () => words
+    );
     const [isFlipped, setIsFlipped] = useState(false);
     const [loading, setLoading] = useState(false);
     const [reviewComplete, setReviewComplete] = useState(false);
@@ -180,7 +185,15 @@ export default function ReviewsPage({
                         </div>
                         <div className="text-center">
                             <div className="text-3xl font-bold text-purple-500">
-                                %{reviewStats.correct > 0 ? Math.round((reviewStats.correct / (reviewStats.correct + reviewStats.incorrect)) * 100).toPrecision(4) : 0}
+                                %
+                                {reviewStats.correct > 0
+                                    ? Math.round(
+                                          (reviewStats.correct /
+                                              (reviewStats.correct +
+                                                  reviewStats.incorrect)) *
+                                              100
+                                      ).toPrecision(4)
+                                    : 0}
                             </div>
                             <div className="text-sm text-gray-500 dark:text-[#A0A0B8]">
                                 Retention
@@ -208,13 +221,13 @@ export default function ReviewsPage({
                     </button>
                 </div>
             ) : (
-                <div className="bg-white dark:bg-[#1E1E2A] rounded-xl shadow-2xl overflow-hidden">
-                    {/* Header */}
-                    <div className="bg-gradient-to-r from-purple-50 to-white dark:from-[#221e2d] dark:to-[#1e1e2a] p-5 border-b border-gray-200 dark:border-[#32324A] flex justify-between items-center">
-                        <h2 className="text-xl font-bold text-gray-800 dark:text-[#F8F8FC] flex items-center">
+                <div className="max-w-4xl mx-auto bg-white dark:bg-[#1E1E2A] rounded-2xl shadow-lg overflow-hidden p-8 my-8 border border-gray-100 dark:border-[#32324A]">
+                    <h1 className="text-3xl justify-between font-extrabold text-center mb-8 text-gray-800 dark:text-[#F8F8FC] flex items-center gap-2">
+                        <div></div>
+                        <div className="flex items-center gap-2">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                className="h-5 w-5 mr-2 text-purple-600"
+                                className="h-8 w-8 text-purple-600"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
@@ -234,41 +247,48 @@ export default function ReviewsPage({
                                 <line x1="12" y1="17" x2="12" y2="21"></line>
                             </svg>
                             Vocabulary Review
-                        </h2>
-                        <div className="flex items-center">
-                            <span className="bg-purple-100 dark:bg-[#2A2A3A] dark:text-purple-700 text-purple-800 text-xs font-medium px-2.5 py-1 rounded-full flex items-center">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-3.5 w-3.5 mr-1"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                >
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                                </svg>
-                                {reviewWords.length}
-                            </span>
                         </div>
-                    </div>
+                        <span className="bg-purple-100 dark:bg-[#2A2A3A] dark:text-purple-700 text-purple-800 text-xs font-medium px-2.5 py-1 rounded-full flex items-center">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-3.5 w-3.5 mr-1"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+                                <rect
+                                    x="10"
+                                    y="4"
+                                    width="9"
+                                    height="13"
+                                    rx="1"
+                                />
+                                <rect
+                                    x="5"
+                                    y="10"
+                                    fill="currentColor"
+                                    width="9"
+                                    height="13"
+                                    rx="1"
+                                />
+                            </svg>
+                            {reviewWords.length}
+                        </span>
+                    </h1>
 
-                    {/* Card Content */}
-                    <div className="p-6">
-                        <div className="bg-white dark:bg-[#2A2A3A] rounded-lg p-6 shadow-sm border border-gray-100 dark:border-[#32324A] min-h-[200px] flex flex-col justify-center">
-                            {/* Static word/key display - fixed position */}
-                            <div className="text-center h-[60px] flex items-center justify-center">
-                                <h3 className="text-2xl font-bold text-purple-700 dark:text-purple-400">
+                    <div className="space-y-6">
+                        <div className="bg-white dark:bg-[#2C2C3C] p-6 rounded-xl shadow-sm border border-gray-100 dark:border-[#32324A]">
+                            <div className="text-center mb-4">
+                                <h3 className="text-3xl font-bold text-purple-700 dark:text-purple-400">
                                     {reviewWords[0].key}
                                 </h3>
                             </div>
 
                             <div
-                                className="flex-1 cursor-pointer flex flex-col justify-center"
+                                className="cursor-pointer min-h-[80px] flex flex-col justify-center"
                                 onClick={() => handleInitialFlip(!isFlipped)}
                             >
                                 <AnimatePresence mode="wait">
@@ -329,7 +349,7 @@ export default function ReviewsPage({
                                                                     index *
                                                                     0.05,
                                                             }}
-                                                            className="text-gray-700 dark:text-[#F8F8FC] bg-white dark:bg-[#282838] p-2 rounded-md border border-gray-100 dark:border-[#32324A] shadow-sm"
+                                                            className="text-gray-700 dark:text-[#F8F8FC] bg-gray-50 dark:bg-[#2A2A3A] p-2 rounded-md border border-gray-200 dark:border-[#32324A] shadow-sm"
                                                         >
                                                             {meaning}
                                                         </motion.li>
@@ -344,13 +364,10 @@ export default function ReviewsPage({
                                 </AnimatePresence>
                             </div>
                         </div>
-                    </div>
 
-                    {/* Actions */}
-                    <div className="p-5 bg-gray-50 dark:bg-[#2A2A3A] border-t border-gray-200 dark:border-[#32324A]">
-                        <div className="flex flex-col space-y-3">
-                            {hasFlipped ? (
-                                <div className="flex space-x-3">
+                        <div className="flex justify-center">
+                            {hasFlipped && (
+                                <div className="flex space-x-4 w-full">
                                     <button
                                         onClick={() =>
                                             handleReview(
@@ -358,7 +375,7 @@ export default function ReviewsPage({
                                                 false
                                             )
                                         }
-                                        className="flex-1 px-4 py-3 bg-gray-200 dark:bg-[#32324A] hover:bg-gray-300 dark:hover:bg-[#2F2F47] text-gray-800 dark:text-[#F8F8FC] rounded-lg transition duration-200 flex items-center justify-center"
+                                        className="flex-1 flex items-center justify-center bg-gray-200 dark:bg-[#32324A] hover:bg-gray-300 dark:hover:bg-[#2F2F47] text-gray-800 dark:text-[#F8F8FC] font-medium rounded-lg px-6 py-4 transition duration-300"
                                     >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
@@ -382,7 +399,7 @@ export default function ReviewsPage({
                                                 true
                                             )
                                         }
-                                        className="flex-1 px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition duration-200 flex items-center justify-center"
+                                        className="flex-1 flex items-center justify-center bg-purple-600 hover:bg-purple-700 focus:ring-4 focus:ring-purple-300 text-white font-medium rounded-lg px-6 py-4 transition duration-300 transform hover:-translate-y-1 shadow-md"
                                     >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
@@ -399,8 +416,6 @@ export default function ReviewsPage({
                                         Good
                                     </button>
                                 </div>
-                            ) : (
-                                <></>
                             )}
                         </div>
                     </div>
