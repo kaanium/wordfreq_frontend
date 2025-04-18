@@ -9,7 +9,8 @@ export const wordAnalyzer = async (
     extractTextFromEpub?: (file: File) => Promise<string>
 ) => {
     if (isFile && (!input || !(input instanceof File))) return;
-    if (!isFile && (!input || typeof input !== "string" || !input.trim())) return;
+    if (!isFile && (!input || typeof input !== "string" || !input.trim()))
+        return;
 
     setIsProcessing(true);
     try {
@@ -33,6 +34,8 @@ export const wordAnalyzer = async (
     } catch (error) {
         console.error("Error processing input:", error);
     } finally {
-        setIsProcessing(false);
+        setTimeout(() => {
+            setIsProcessing(false);
+        }, 1000);
     }
 };
