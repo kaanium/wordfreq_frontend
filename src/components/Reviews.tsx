@@ -29,7 +29,7 @@ function updateCardState(
             currentCard.state = "relearning1";
             words.push(currentCard);
         } else if (currentCard.state === "relearning1") {
-            // Stay in relearning1 but keep the card in the queue
+            // Stay in relearning1 and keep the card in the queue
             words.push(currentCard);
         }
     } else {
@@ -49,7 +49,6 @@ export default function ReviewsPage({
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isFlipped, setIsFlipped] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [direction, setDirection] = useState(0);
     const [reviewComplete, setReviewComplete] = useState(false);
     const [reviewStats, setReviewStats] = useState({
         correct: 0,
@@ -82,7 +81,6 @@ export default function ReviewsPage({
     };
 
     const handleReview = async (word: string, isCorrect: boolean) => {
-        setDirection(isCorrect ? 1 : -1);
 
         try {
             await reviewFlashcard(word, isCorrect);
@@ -96,7 +94,6 @@ export default function ReviewsPage({
             setReviewWords(words);
             setIsFlipped(false);
             setHasFlipped(false);
-            setDirection(0);
 
             if (words.length === 0) {
                 setReviewComplete(true);
@@ -270,81 +267,93 @@ export default function ReviewsPage({
 
                     {/* Card Content */}
                     <div className="p-6">
-                        <AnimatePresence mode="wait">
-                            <motion.div
-                                key={
-                                    currentIndex + (isFlipped ? "-flipped" : "")
-                                }
-                                initial={{
-                                    x: direction * 100,
-                                    opacity: 0,
-                                    rotateY: isFlipped ? 0 : 180,
-                                }}
-                                animate={{
-                                    x: 0,
-                                    opacity: 1,
-                                    rotateY: isFlipped ? 180 : 0,
-                                }}
-                                exit={{
-                                    x: -direction * 100,
-                                    opacity: 0,
-                                }}
-                                transition={{
-                                    type: "spring",
-                                    stiffness: 300,
-                                    damping: 25,
-                                }}
-                                
-                                className="bg-white dark:bg-[#2A2A3A] rounded-lg p-6 shadow-sm border border-gray-100 dark:border-[#32324A] min-h-[200px] flex flex-col items-center justify-center cursor-pointer"
+                        <div className="bg-white dark:bg-[#2A2A3A] rounded-lg p-6 shadow-sm border border-gray-100 dark:border-[#32324A] min-h-[200px] flex flex-col justify-center">
+                            {/* Static word/key display - fixed position */}
+                            <div className="text-center h-[60px] flex items-center justify-center">
+                                <h3 className="text-2xl font-bold text-purple-700 dark:text-purple-400">
+                                    {reviewWords[currentIndex].key}
+                                </h3>
+                            </div>
+
+                            <div
+                                className="flex-1 cursor-pointer flex flex-col justify-center"
                                 onClick={() => handleInitialFlip(!isFlipped)}
                             >
-                                {!isFlipped ? (
-                                    <div className="text-center">
-                                        <h3 className="text-2xl font-bold text-purple-700 mb-3">
-                                            {reviewWords[currentIndex].key}
-                                        </h3>
-                                        <p className="text-gray-500 dark:text-[#A0A0B8] text-sm mt-4">
-                                            Click to see meanings
-                                        </p>
-                                    </div>
-                                ) : (
-                                    <div className="w-full" style={{ transform: "scaleX(-1)" }}>
-                                        <h4 className="text-sm font-medium text-gray-500 dark:text-[#A0A0B8] mb-3 flex items-center">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                className="h-3.5 w-3.5 mr-1"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="2"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                            >
-                                                <path d="M12 20V10"></path>
-                                                <path d="M18 20V4"></path>
-                                                <path d="M6 20v-6"></path>
-                                            </svg>
-                                            Meanings:
-                                        </h4>
-                                        <ul className="space-y-2">
-                                            {reviewWords[
-                                                currentIndex
-                                            ].meanings.map((meaning, index) => (
-                                                <li
-                                                    key={index}
-                                                    className="text-gray-700 dark:text-[#F8F8FC] bg-white dark:bg-[#282838] p-2 rounded-md border border-gray-100 dark:border-[#32324A] shadow-sm"
+                                <AnimatePresence mode="wait">
+                                    {!isFlipped ? (
+                                        <motion.div
+                                            key="prompt"
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            exit={{ opacity: 0 }}
+                                            transition={{ duration: 0.2 }}
+                                            className="text-center"
+                                        >
+                                            <p className="text-gray-500 dark:text-[#A0A0B8] text-sm">
+                                                Click to see meanings
+                                            </p>
+                                        </motion.div>
+                                    ) : (
+                                        <motion.div
+                                            key="meanings"
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            exit={{ opacity: 0 }}
+                                            transition={{ duration: 0.2 }}
+                                            className="w-full"
+                                        >
+                                            <h4 className="text-sm font-medium text-gray-500 dark:text-[#A0A0B8] mb-3 flex items-center">
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    className="h-3.5 w-3.5 mr-1"
+                                                    viewBox="0 0 24 24"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    strokeWidth="2"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
                                                 >
-                                                    {meaning}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                        <p className="text-gray-500 dark:text-[#A0A0B8] text-sm text-center mt-4">
-                                            Click to see word
-                                        </p>
-                                    </div>
-                                )}
-                            </motion.div>
-                        </AnimatePresence>
+                                                    <path d="M12 20V10"></path>
+                                                    <path d="M18 20V4"></path>
+                                                    <path d="M6 20v-6"></path>
+                                                </svg>
+                                                Meanings
+                                            </h4>
+                                            <ul className="space-y-2">
+                                                {reviewWords[
+                                                    currentIndex
+                                                ].meanings.map(
+                                                    (meaning, index) => (
+                                                        <motion.li
+                                                            key={index}
+                                                            initial={{
+                                                                opacity: 0,
+                                                                y: 10,
+                                                            }}
+                                                            animate={{
+                                                                opacity: 1,
+                                                                y: 0,
+                                                            }}
+                                                            transition={{
+                                                                delay:
+                                                                    index *
+                                                                    0.05,
+                                                            }}
+                                                            className="text-gray-700 dark:text-[#F8F8FC] bg-white dark:bg-[#282838] p-2 rounded-md border border-gray-100 dark:border-[#32324A] shadow-sm"
+                                                        >
+                                                            {meaning}
+                                                        </motion.li>
+                                                    )
+                                                )}
+                                            </ul>
+                                            <p className="text-gray-500 dark:text-[#A0A0B8] text-sm text-center mt-4">
+                                                Click to hide meanings
+                                            </p>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Actions */}

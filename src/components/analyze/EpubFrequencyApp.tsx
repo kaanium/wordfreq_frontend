@@ -1,7 +1,7 @@
 import type React from "react";
 import { useState } from "react";
 import ePub from "epubjs";
-import Popup from "../Popup";
+import Popup from "./AnalyzePopup";
 import AnalyzeButton from "./AnalyzeButton";
 import { wordAnalyzer } from "../../utils/WordAnalyzer";
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { wordAnalyzer } from "../../utils/WordAnalyzer";
 import AnalyzeButton from "./AnalyzeButton";
-import Popup from "../Popup";
+import Popup from "./AnalyzePopup";
 
 const WordFrequencyApp = () => {
     const [inputText, setInputText] = useState("");

@@ -4,7 +4,7 @@ import {
     addWordFlashcard,
     addWordsBulkToFlashcard,
     getWordsFromFlashcard,
-} from "../services/FlashcardService";
+} from "../../services/FlashcardService";
 
 interface PopupProps {
     title: string;
@@ -40,7 +40,7 @@ const Popup: React.FC<PopupProps> = ({ title, items, onClose }) => {
         return () => {
             document.removeEventListener("keydown", handleEscKey);
         };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -65,6 +65,13 @@ const Popup: React.FC<PopupProps> = ({ title, items, onClose }) => {
             }
         } catch (error) {
             console.error("Error fetching existing words:", error);
+        }
+    };
+
+    const resetScrollPosition = () => {
+        const scrollableDiv = document.getElementById("scrollableDiv");
+        if (scrollableDiv) {
+            scrollableDiv.scrollTop = 0;
         }
     };
 
@@ -311,7 +318,10 @@ const Popup: React.FC<PopupProps> = ({ title, items, onClose }) => {
                     </div>
                 </div>
 
-                <div className="flex-1 p-5 overflow-y-auto bg-gray-50 dark:bg-[#121218]">
+                <div
+                    className="flex-1 p-5 overflow-y-auto bg-gray-50 dark:bg-[#121218]"
+                    id="scrollableDiv"
+                >
                     {paginatedItems.length > 0 ? (
                         <ul className="space-y-1">
                             {paginatedItems.map((wordObj, index) => {
@@ -477,9 +487,10 @@ const Popup: React.FC<PopupProps> = ({ title, items, onClose }) => {
                         </div>
                         <div className="flex space-x-2">
                             <button
-                                onClick={() =>
-                                    setPage((p) => Math.max(1, p - 1))
-                                }
+                                onClick={() => {
+                                    setPage((p) => Math.max(1, p - 1));
+                                    resetScrollPosition();
+                                }}
                                 disabled={page === 1}
                                 className="px-4 py-2 rounded-lg bg-gray-100 dark:bg-[#2A2A3A] text-gray-700 dark:text-[#F8F8FC] disabled:opacity-50 hover:bg-gray-200 dark:hover:bg-[#32324A] transition-colors duration-200 flex items-center"
                             >
@@ -498,9 +509,10 @@ const Popup: React.FC<PopupProps> = ({ title, items, onClose }) => {
                                 Previous
                             </button>
                             <button
-                                onClick={() =>
-                                    setPage((p) => Math.min(pageCount, p + 1))
-                                }
+                                onClick={() => {
+                                    setPage((p) => Math.min(pageCount, p + 1));
+                                    resetScrollPosition();
+                                }}
                                 disabled={page === pageCount}
                                 className="px-4 py-2 rounded-lg bg-gray-100 dark:bg-[#2A2A3A] text-gray-700 dark:text-[#F8F8FC] disabled:opacity-50 hover:bg-gray-200 dark:hover:bg-[#32324A] transition-colors duration-200 flex items-center"
                             >

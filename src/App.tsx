@@ -41,7 +41,6 @@ const App = () => {
             theme = 'dark';
         }
 
-        console.log("Theme detected:", theme);
     
         theme === 'dark' ? enableDarkMode() : disableDarkMode();
     }
