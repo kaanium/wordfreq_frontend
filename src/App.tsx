@@ -22,6 +22,32 @@ const App = () => {
     const [reviewWords, setReviewWords] = useState<FlashcardWord[]>([]);
     const [reviewCount, setReviewCount] = useState(0);
 
+    const enableDarkMode = () => {
+        document.body.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+    }
+    const  disableDarkMode = () => {
+        document.body.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+    }
+    
+    const detectColorScheme = () => {
+        let theme: string | null = 'light';
+    
+        if (localStorage.getItem('theme')) {
+            theme = localStorage.getItem('theme');
+        }
+        else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            theme = 'dark';
+        }
+
+        console.log("Theme detected:", theme);
+    
+        theme === 'dark' ? enableDarkMode() : disableDarkMode();
+    }
+    
+    detectColorScheme();
+
     const handleLogin = async () => {
         try {
             const response = await getUser();
@@ -131,7 +157,7 @@ const App = () => {
 
     if (loading)
         return (
-            <div className="flex justify-center items-center h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+            <div className="flex justify-center items-center h-screen bg-gradient-to-b dark:from-[#121218] dark:to-[#121218] from-gray-50 to-gray-100">
                 <div
                     className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"
                     role="status"
@@ -143,11 +169,13 @@ const App = () => {
     return (
         <div>
             {user ? (
-                <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+                <div className="min-h-screen bg-gradient-to-b dark:from-[#121218] dark:to-[#121218] from-gray-50 to-gray-100">
                     <Header
                         activeTab={activeTab}
                         onTabChange={setActiveTab}
                         onLogout={handleLogout}
+                        enableDarkMode={enableDarkMode}
+                        disableDarkMode={disableDarkMode}
                         reviewCount={reviewCount}
                     />
                     <main className="py-8 px-4">
@@ -157,7 +185,7 @@ const App = () => {
                     </main>
                 </div>
             ) : (
-                <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 py-12 px-4">
+                <div className="min-h-screen flex items-center justify-center bg-gradient-to-b dark:from-[#121218] dark:to-[#121218] from-gray-50 to-gray-100 py-12 px-4">
                     <div className="max-w-md w-full">
                         <AuthPage onLogin={handleLogin} />
                     </div>

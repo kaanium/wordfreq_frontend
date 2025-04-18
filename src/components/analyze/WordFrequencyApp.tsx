@@ -22,8 +22,8 @@ const WordFrequencyApp = () => {
     };
 
     return (
-        <div className="max-w-4xl mx-auto bg-gradient-to-b from-white to-gray-50 rounded-2xl shadow-lg overflow-hidden p-8 my-8 border border-gray-100">
-            <h1 className="text-3xl font-extrabold text-center mb-8 text-gray-800 flex items-center justify-center gap-2">
+        <div className="max-w-4xl mx-auto bg-white dark:bg-[#1E1E2A] rounded-2xl shadow-lg overflow-hidden p-8 my-8 border border-gray-100 dark:border-[#32324A]">
+            <h1 className="text-3xl font-extrabold text-center mb-8 text-gray-800 dark:text-[#F8F8FC] flex items-center justify-center gap-2">
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-8 w-8 text-purple-600"
@@ -44,10 +44,10 @@ const WordFrequencyApp = () => {
             </h1>
 
             <div className="space-y-6">
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <div className="bg-white dark:bg-[#2C2C3C] p-6 rounded-xl shadow-sm border border-gray-100 dark:border-[#32324A]">
                     <label
                         htmlFor="text-input"
-                        className="block text-sm font-medium text-gray-700 mb-2"
+                        className="block text-sm font-medium text-gray-700 dark:text-[#F8F8FC] mb-2"
                     >
                         Enter your text:
                     </label>
@@ -57,13 +57,13 @@ const WordFrequencyApp = () => {
                         onChange={(e) => setInputText(e.target.value)}
                         placeholder="Paste a paragraph, article, or any text you want to analyze..."
                         rows={8}
-                        className="w-full px-4 py-3 text-gray-700 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-y transition duration-200 bg-gray-50 hover:bg-white"
+                        className="w-full px-4 py-3 text-gray-700 dark:text-[#F8F8FC] border border-gray-200 dark:border-[#32324A] rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-y transition duration-200 bg-gray-50 dark:bg-[#2A2A3A] hover:bg-white dark:hover:bg-[#32324A]"
                     />
 
                     <div className="flex items-center justify-between mt-3 flex-row-reverse">
                         <button
                             onClick={() => setInputText("")}
-                            className="text-sm text-purple-600 hover:text-purple-800 hover:underline transition duration-200 flex items-center gap-1 "
+                            className="text-sm text-purple-600 hover:text-purple-800 hover:underline transition duration-200 flex items-center gap-1"
                             disabled={!inputText}
                         >
                             <svg

@@ -11,7 +11,7 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
   const switchToRegister = (): void => setCurrentPage("register")
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-b from-white to-gray-50 rounded-3xl shadow-xl border border-gray-100 p-4">
+    <div className="relative overflow-hidden bg-gradient-to-b from-white to-gray-50 dark:from-[#1E1E2A] dark:to-[#1E1E2A] rounded-3xl shadow-xl border border-gray-100 dark:border-[#32324A] p-4">
       <div className="flex justify-center mb-6">
         <div className="flex items-center">
           <div className="h-10 w-10 rounded-md bg-gradient-to-r from-purple-600 to-purple-800 flex items-center justify-center text-white mr-2">
@@ -32,7 +32,7 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
               <polyline points="10 9 9 9 8 9"></polyline>
             </svg>
           </div>
-          <span className="text-2xl font-bold text-gray-900">WordFreq</span>
+          <span className="text-2xl font-bold text-gray-900 dark:text-[#F8F8FC]">WordFreq</span>
         </div>
       </div>
       

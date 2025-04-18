@@ -127,8 +127,8 @@ export default function ReviewsPage({
     return (
         <div className="container mx-auto max-w-4xl">
             {reviewWords.length === 0 && !reviewComplete ? (
-                <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
-                    <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <div className="bg-white dark:bg-[#1E1E2A] rounded-2xl shadow-lg p-8 text-center">
+                    <div className="w-20 h-20 bg-purple-100 dark:bg-[#2A2A3A] rounded-full flex items-center justify-center mx-auto mb-6">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             className="h-10 w-10 text-purple-600"
@@ -144,17 +144,17 @@ export default function ReviewsPage({
                             <path d="M12 16h.01"></path>
                         </svg>
                     </div>
-                    <h2 className="text-2xl font-bold mb-4 text-gray-800">
+                    <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-[#F8F8FC]">
                         No Words to Review
                     </h2>
-                    <p className="text-gray-600 mb-6">
+                    <p className="text-gray-600 dark:text-[#A0A0B8] mb-6">
                         You don't have any words due for review today. Check
                         back later or add more words to your flashcards.
                     </p>
                 </div>
             ) : reviewComplete ? (
-                <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
-                    <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <div className="bg-white dark:bg-[#1E1E2A] rounded-2xl shadow-lg p-8 text-center">
+                    <div className="w-20 h-20 bg-purple-100 dark:bg-[#2A2A3A] rounded-full flex items-center justify-center mx-auto mb-6">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             className="h-10 w-10 text-purple-600"
@@ -169,7 +169,7 @@ export default function ReviewsPage({
                             <polyline points="22 4 12 14.01 9 11.01"></polyline>
                         </svg>
                     </div>
-                    <h2 className="text-2xl font-bold mb-4 text-gray-800">
+                    <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-[#F8F8FC]">
                         Review Complete!
                     </h2>
                     <div className="flex justify-center space-x-8 mb-6">
@@ -177,13 +177,15 @@ export default function ReviewsPage({
                             <div className="text-3xl font-bold text-green-500">
                                 {reviewStats.correct}
                             </div>
-                            <div className="text-sm text-gray-500">Correct</div>
+                            <div className="text-sm text-gray-500 dark:text-[#A0A0B8]">
+                                Correct
+                            </div>
                         </div>
                         <div className="text-center">
                             <div className="text-3xl font-bold text-red-500">
                                 {reviewStats.incorrect}
                             </div>
-                            <div className="text-sm text-gray-500">
+                            <div className="text-sm text-gray-500 dark:text-[#A0A0B8]">
                                 Incorrect
                             </div>
                         </div>
@@ -191,7 +193,9 @@ export default function ReviewsPage({
                             <div className="text-3xl font-bold text-purple-500">
                                 {words.length}
                             </div>
-                            <div className="text-sm text-gray-500">Cards</div>
+                            <div className="text-sm text-gray-500 dark:text-[#A0A0B8]">
+                                Cards
+                            </div>
                         </div>
                     </div>
                     <button
@@ -215,10 +219,10 @@ export default function ReviewsPage({
                     </button>
                 </div>
             ) : (
-                <div className="bg-white rounded-xl shadow-2xl overflow-hidden">
+                <div className="bg-white dark:bg-[#1E1E2A] rounded-xl shadow-2xl overflow-hidden">
                     {/* Header */}
-                    <div className="bg-gradient-to-r from-purple-50 to-white p-5 border-b border-gray-200 flex justify-between items-center">
-                        <h2 className="text-xl font-bold text-gray-800 flex items-center">
+                    <div className="bg-gradient-to-r from-purple-50 to-white dark:from-[#221e2d] dark:to-[#1e1e2a] p-5 border-b border-gray-200 dark:border-[#32324A] flex justify-between items-center">
+                        <h2 className="text-xl font-bold text-gray-800 dark:text-[#F8F8FC] flex items-center">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 className="h-5 w-5 mr-2 text-purple-600"
@@ -243,7 +247,7 @@ export default function ReviewsPage({
                             Vocabulary Review
                         </h2>
                         <div className="flex items-center">
-                            <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-1 rounded-full flex items-center">
+                            <span className="bg-purple-100 dark:bg-[#2A2A3A] dark:text-purple-700 text-purple-800 text-xs font-medium px-2.5 py-1 rounded-full flex items-center">
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     className="h-3.5 w-3.5 mr-1"
@@ -290,7 +294,8 @@ export default function ReviewsPage({
                                     stiffness: 300,
                                     damping: 25,
                                 }}
-                                className="bg-gradient-to-b from-white to-purple-50 rounded-lg p-6 shadow-sm border border-purple-100 min-h-[200px] flex flex-col items-center justify-center cursor-pointer"
+                                
+                                className="bg-white dark:bg-[#2A2A3A] rounded-lg p-6 shadow-sm border border-gray-100 dark:border-[#32324A] min-h-[200px] flex flex-col items-center justify-center cursor-pointer"
                                 onClick={() => handleInitialFlip(!isFlipped)}
                             >
                                 {!isFlipped ? (
@@ -298,16 +303,13 @@ export default function ReviewsPage({
                                         <h3 className="text-2xl font-bold text-purple-700 mb-3">
                                             {reviewWords[currentIndex].key}
                                         </h3>
-                                        <p className="text-gray-500 text-sm mt-4">
+                                        <p className="text-gray-500 dark:text-[#A0A0B8] text-sm mt-4">
                                             Click to see meanings
                                         </p>
                                     </div>
                                 ) : (
-                                    <div
-                                        className="w-full"
-                                        style={{ transform: "scaleX(-1)" }}
-                                    >
-                                        <h4 className="text-sm font-medium text-gray-500 mb-3 flex items-center">
+                                    <div className="w-full" style={{ transform: "scaleX(-1)" }}>
+                                        <h4 className="text-sm font-medium text-gray-500 dark:text-[#A0A0B8] mb-3 flex items-center">
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
                                                 className="h-3.5 w-3.5 mr-1"
@@ -330,13 +332,13 @@ export default function ReviewsPage({
                                             ].meanings.map((meaning, index) => (
                                                 <li
                                                     key={index}
-                                                    className="text-gray-700 bg-white p-2 rounded-md border border-gray-100 shadow-sm"
+                                                    className="text-gray-700 dark:text-[#F8F8FC] bg-white dark:bg-[#282838] p-2 rounded-md border border-gray-100 dark:border-[#32324A] shadow-sm"
                                                 >
                                                     {meaning}
                                                 </li>
                                             ))}
                                         </ul>
-                                        <p className="text-gray-500 text-sm text-center mt-4">
+                                        <p className="text-gray-500 dark:text-[#A0A0B8] text-sm text-center mt-4">
                                             Click to see word
                                         </p>
                                     </div>
@@ -346,7 +348,7 @@ export default function ReviewsPage({
                     </div>
 
                     {/* Actions */}
-                    <div className="p-5 bg-gray-50 border-t border-gray-200">
+                    <div className="p-5 bg-gray-50 dark:bg-[#2A2A3A] border-t border-gray-200 dark:border-[#32324A]">
                         <div className="flex flex-col space-y-3">
                             {hasFlipped ? (
                                 <div className="flex space-x-3">
@@ -357,7 +359,7 @@ export default function ReviewsPage({
                                                 false
                                             )
                                         }
-                                        className="flex-1 px-4 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition duration-200 flex items-center justify-center"
+                                        className="flex-1 px-4 py-3 bg-gray-200 dark:bg-[#32324A] hover:bg-gray-300 dark:hover:bg-[#2F2F47] text-gray-800 dark:text-[#F8F8FC] rounded-lg transition duration-200 flex items-center justify-center"
                                     >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"

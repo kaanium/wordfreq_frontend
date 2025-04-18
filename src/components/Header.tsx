@@ -5,6 +5,8 @@ interface HeaderProps {
     activeTab: string;
     onTabChange: (tab: string) => void;
     onLogout?: () => void;
+    enableDarkMode: () => void;
+    disableDarkMode: () => void;
     reviewCount: number;
 }
 
@@ -12,9 +14,14 @@ const Header: React.FC<HeaderProps> = ({
     activeTab,
     onTabChange,
     onLogout,
+    enableDarkMode,
+    disableDarkMode,
     reviewCount = 0,
 }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isDarkMode, setIsDarkMode] = useState(
+        localStorage.getItem("theme") === "dark"
+    );
 
     const navItems = [
         {
@@ -94,8 +101,13 @@ const Header: React.FC<HeaderProps> = ({
         }
     };
 
+    const handleThemeToggle = () => {
+        setIsDarkMode(!isDarkMode);
+        localStorage.getItem('theme') === 'light' ? enableDarkMode() : disableDarkMode();
+    };
+
     return (
-        <header className="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm">
+        <header className="bg-white dark:bg-[#1E1E2A] border-b border-gray-200 dark:border-[#32324A] sticky top-0 z-30 shadow-sm">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between h-16">
                     {/* Logo */}
@@ -122,7 +134,7 @@ const Header: React.FC<HeaderProps> = ({
                                     <polyline points="10 9 9 9 8 9"></polyline>
                                 </svg>
                             </div>
-                            <span className="text-xl font-bold text-gray-900">
+                            <span className="text-xl font-bold text-gray-900 dark:text-[#F8F8FC]">
                                 WordFreq
                             </span>
                         </div>
@@ -138,8 +150,8 @@ const Header: React.FC<HeaderProps> = ({
                                     disabled={item.comingSoon}
                                     className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md ${
                                         activeTab === item.id
-                                            ? "text-purple-700 bg-purple-50"
-                                            : "text-gray-600 hover:text-purple-700 hover:bg-purple-50"
+                                            ? "text-purple-700 bg-purple-50 dark:bg-[#2A2A3A]"
+                                            : "text-gray-600 dark:text-gray-500 hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-[#2A2A3A]"
                                     } transition-colors duration-200 ${
                                         item.comingSoon
                                             ? "opacity-60 cursor-not-allowed"
@@ -165,6 +177,49 @@ const Header: React.FC<HeaderProps> = ({
                                 </button>
                             ))}
                         </nav>
+
+                        {/* Theme Toggle Button */}
+                        <button
+                            onClick={handleThemeToggle}
+                            className="ml-4 p-2 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#2A2A3A] transition-colors duration-200"
+                            aria-label="Toggle dark mode"
+                        >
+                            {isDarkMode ? (
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-5 w-5"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                >
+                                    <circle cx="12" cy="12" r="5"></circle>
+                                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                                </svg>
+                            ) : (
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-5 w-5"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                >
+                                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                                </svg>
+                            )}
+                        </button>
 
                         {/* Logout Button */}
                         <button
@@ -193,7 +248,7 @@ const Header: React.FC<HeaderProps> = ({
                     <div className="flex items-center md:hidden">
                         <button
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
-                            className="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-purple-700 hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-purple-500"
+                            className="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-[#2A2A3A] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-purple-500"
                             aria-expanded="false"
                         >
                             <span className="sr-only">Open main menu</span>
@@ -245,8 +300,8 @@ const Header: React.FC<HeaderProps> = ({
                             disabled={item.comingSoon}
                             className={`w-full flex items-center px-3 py-2 text-base font-medium ${
                                 activeTab === item.id
-                                    ? "text-purple-700 bg-purple-50 border-l-4 border-purple-500"
-                                    : "text-gray-600 hover:bg-purple-50 hover:text-purple-700 border-l-4 border-transparent"
+                                    ? "text-purple-700 bg-purple-50 dark:bg-[#2A2A3A] border-l-4 border-purple-500"
+                                    : "text-gray-600 hover:bg-purple-50 hover:text-purple-700 dark:hover:bg-[#2A2A3A] border-l-4 border-transparent"
                             } ${
                                 item.comingSoon
                                     ? "opacity-60 cursor-not-allowed"
@@ -269,6 +324,56 @@ const Header: React.FC<HeaderProps> = ({
                             </div>
                         </button>
                     ))}
+
+                    {/* Mobile Theme Toggle Button */}
+                    <button
+                        onClick={handleThemeToggle}
+                        className="w-full flex items-center px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#2A2A3A]"
+                    >
+                        <div className="ml-3 flex items-center">
+                            {isDarkMode ? (
+                                <>
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        className="h-5 w-5 mr-2"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    >
+                                        <circle cx="12" cy="12" r="5"></circle>
+                                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                                    </svg>
+                                    Light Mode
+                                </>
+                            ) : (
+                                <>
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        className="h-5 w-5 mr-2"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    >
+                                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                                    </svg>
+                                    Dark Mode
+                                </>
+                            )}
+                        </div>
+                    </button>
 
                     {/* Mobile Logout Button */}
                     <button

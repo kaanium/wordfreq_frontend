@@ -60,8 +60,8 @@ const EpubFrequencyApp = () => {
     };
 
     return (
-        <div className="max-w-4xl mx-auto bg-gradient-to-b from-white to-gray-50 rounded-2xl shadow-lg overflow-hidden p-8 my-8 border border-gray-100">
-            <h1 className="text-3xl font-extrabold text-center mb-8 text-gray-800 flex items-center justify-center gap-2">
+        <div className="max-w-4xl mx-auto bg-gradient-to-b from-white to-gray-50 dark:from-[#1E1E2A] dark:to-[#1E1E2A] rounded-2xl shadow-lg overflow-hidden p-8 my-8 border border-gray-100 dark:border-[#32324A]">
+            <h1 className="text-3xl font-extrabold text-center mb-8 text-gray-800 dark:text-[#F8F8FC] flex items-center justify-center gap-2">
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-8 w-8 text-purple-600"
@@ -79,8 +79,8 @@ const EpubFrequencyApp = () => {
             </h1>
 
             <div className="space-y-6">
-                <div className="flex flex-col items-center bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-                    <label className="w-full flex flex-col items-center px-6 py-8 bg-gradient-to-r from-purple-50 to-purple-100 text-purple-700 rounded-xl shadow-sm tracking-wide border border-purple-200 cursor-pointer hover:bg-purple-100 transition duration-300 group">
+                <div className="flex flex-col items-center bg-white dark:bg-[#1E1E2A] p-8 rounded-xl shadow-sm border border-gray-100 dark:border-[#1E1E2A]">
+                    <label className="w-full flex flex-col items-center px-6 py-8 bg-gradient-to-r from-purple-50 to-purple-100 dark:from-[#32324A] dark:to-[#32324A] text-purple-700 rounded-xl shadow-sm tracking-wide border border-purple-200 dark:border-[#4f4f71] border-dashed cursor-pointer hover:bg-purple-100 dark:hover:bg-[#2A2A3A] transition duration-300 group">
                         <div className="relative">
                             <svg
                                 className="w-10 h-10 mb-2 text-purple-500 group-hover:text-purple-600 transition-all duration-300"
@@ -128,7 +128,7 @@ const EpubFrequencyApp = () => {
                     </label>
 
                     {file && (
-                        <div className="mt-4 p-3 bg-purple-50 rounded-lg border border-purple-100 w-full">
+                        <div className="mt-4 p-3 bg-purple-50 dark:bg-[#2A2A3A] rounded-lg border border-purple-100 dark:border-[#32324A] w-full">
                             <div className="flex items-center">
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -138,14 +138,14 @@ const EpubFrequencyApp = () => {
                                 >
                                     <path
                                         fillRule="evenodd"
-                                        d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"
+                                        d="M4 4a2 2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"
                                         clipRule="evenodd"
                                     />
                                 </svg>
-                                <span className="text-sm font-medium text-gray-700 truncate flex-1">
+                                <span className="text-sm font-medium text-gray-700 dark:text-[#F8F8FC] truncate flex-1">
                                     {file.name}
                                 </span>
-                                <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded-full ml-2">
+                                <span className="text-xs text-gray-500 dark:text-[#A0A0B8] bg-white dark:bg-[#1E1E2A] px-2 py-1 rounded-full ml-2">
                                     {(file.size / (1024 * 1024)).toFixed(2)} MB
                                 </span>
                             </div>

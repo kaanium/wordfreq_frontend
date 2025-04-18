@@ -93,9 +93,9 @@ export default function Register({ onSwitchToLogin }: RegisterProps) {
   }
 
   return (
-    <div className="w-full bg-white md:mt-0 sm:max-w-md xl:p-0 rounded-2xl">
+    <div className="w-full bg-white dark:bg-[#1E1E2A] md:mt-0 sm:max-w-md xl:p-0 rounded-2xl">
       <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-        <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl flex items-center">
+        <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 dark:text-[#F8F8FC] md:text-2xl flex items-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-5 w-5 mr-2 text-purple-600"
@@ -115,20 +115,20 @@ export default function Register({ onSwitchToLogin }: RegisterProps) {
         </h1>
 
         {errors.general && (
-          <div className="p-3 text-sm text-red-600 bg-red-100 rounded-lg text-center">
+          <div className="p-3 text-sm text-red-600 bg-red-100 dark:bg-red-900 rounded-lg text-center">
             {errors.general}
           </div>
         )}
 
         {successMessage && (
-          <div className="p-3 text-sm text-purple-600 bg-purple-100 rounded-lg text-center">
+          <div className="p-3 text-sm text-purple-600 bg-purple-100 dark:bg-purple-900 rounded-lg text-center">
             {successMessage}
           </div>
         )}
 
         <form className="space-y-3 md:space-y-4" onSubmit={handleSubmit} noValidate>
           <div>
-            <label className="block text-sm font-medium text-gray-900">
+            <label className="block text-sm font-medium text-gray-900 dark:text-[#F8F8FC]">
               Username
               {errors.username && <span className="text-red-500 text-xs ml-1">({errors.username})</span>}
             </label>
@@ -139,13 +139,13 @@ export default function Register({ onSwitchToLogin }: RegisterProps) {
               placeholder="username"
               onChange={handleChange}
               className={`w-full p-2.5 mt-1 border rounded-lg focus:ring-purple-600 focus:border-purple-600 ${
-                errors.username ? "border-red-500" : "border-gray-300"
-              }`}
+                errors.username ? "border-red-500" : "border-gray-300 dark:border-[#32324A]"
+              } bg-gray-50 dark:bg-[#2A2A3A] text-gray-900 dark:text-[#F8F8FC]`}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-900">
+            <label className="block text-sm font-medium text-gray-900 dark:text-[#F8F8FC]">
               Email
               {errors.email && <span className="text-red-500 text-xs ml-1">({errors.email})</span>}
             </label>
@@ -157,13 +157,13 @@ export default function Register({ onSwitchToLogin }: RegisterProps) {
               placeholder="name@company.com"
               onChange={handleChange}
               className={`w-full p-2.5 mt-1 border rounded-lg focus:ring-purple-600 focus:border-purple-600 ${
-                errors.email ? "border-red-500" : "border-gray-300"
-              }`}
+                errors.email ? "border-red-500" : "border-gray-300 dark:border-[#32324A]"
+              } bg-gray-50 dark:bg-[#2A2A3A] text-gray-900 dark:text-[#F8F8FC]`}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-900">
+            <label className="block text-sm font-medium text-gray-900 dark:text-[#F8F8FC]">
               Password
               {errors.password && <span className="text-red-500 text-xs ml-1">({errors.password})</span>}
             </label>
@@ -175,13 +175,13 @@ export default function Register({ onSwitchToLogin }: RegisterProps) {
               placeholder="••••••••"
               onChange={handleChange}
               className={`w-full p-2.5 mt-1 border rounded-lg focus:ring-purple-600 focus:border-purple-600 ${
-                errors.password ? "border-red-500" : "border-gray-300"
-              }`}
+                errors.password ? "border-red-500" : "border-gray-300 dark:border-[#32324A]"
+              } bg-gray-50 dark:bg-[#2A2A3A] text-gray-900 dark:text-[#F8F8FC]`}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-900">
+            <label className="block text-sm font-medium text-gray-900 dark:text-[#F8F8FC]">
               Confirm Password
               {errors.confirmPassword && <span className="text-red-500 text-xs ml-1">({errors.confirmPassword})</span>}
             </label>
@@ -193,8 +193,8 @@ export default function Register({ onSwitchToLogin }: RegisterProps) {
               onChange={handleChange}
               autoComplete="off"
               className={`w-full p-2.5 mt-1 border rounded-lg focus:ring-purple-600 focus:border-purple-600 ${
-                errors.confirmPassword ? "border-red-500" : "border-gray-300"
-              }`}
+                errors.confirmPassword ? "border-red-500" : "border-gray-300 dark:border-[#32324A]"
+              } bg-gray-50 dark:bg-[#2A2A3A] text-gray-900 dark:text-[#F8F8FC]`}
             />
           </div>
 
@@ -235,7 +235,7 @@ export default function Register({ onSwitchToLogin }: RegisterProps) {
           </button>
         </form>
 
-        <div className="text-sm text-center">
+        <div className="text-sm text-center text-gray-500 dark:text-[#A0A0B8]">
           <span>Already have an account? </span>
           <button onClick={onSwitchToLogin} className="font-medium text-purple-600 hover:underline">
             Sign in
