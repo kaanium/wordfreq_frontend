@@ -6,14 +6,7 @@ import AuthPage from "./components/authentication/AuthPage";
 import Header from "./components/Header";
 import { getUser } from "./services/AuthenticationService";
 import { getReviewWordsFromFlashcard } from "./services/FlashcardService";
-
-interface FlashcardWord {
-    id: string;
-    key: string;
-    meanings: string[];
-    nextReview: string;
-    interval: number;
-}
+import { FlashcardWord } from "./types";
 
 const App = () => {
     const [activeTab, setActiveTab] = useState("text");

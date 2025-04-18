@@ -1,20 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { reviewFlashcard } from "../services/FlashcardService";
+import { FlashcardWord, ReviewsPageProps } from "../types";
 
-interface FlashcardWord {
-    id: string;
-    key: string;
-    meanings: string[];
-    nextReview: string;
-    interval: number;
-    state?: "learned" | "relearning1" | "relearning2";
-}
 
-interface ReviewsPageProps {
-    words: FlashcardWord[];
-    onReviewComplete: () => void;
-}
 
 function updateCardState(
     currentCard: FlashcardWord,
@@ -37,16 +26,25 @@ function updateCardState(
             currentCard.state = "relearning2";
             words.push(currentCard);
         }
+        else {
+            updateRemainingWordCount();
+        }
         // Correct answers for "learned" or "relearning2" require no action
     }
 }
+
+const updateRemainingWordCount = () => {
+    document.querySelectorAll("#reviewCount").forEach((el) => {
+        const count = parseInt(el.textContent || "0", 10);
+        el.textContent = (count - 1).toString();
+    });
+};
 
 export default function ReviewsPage({
     words,
     onReviewComplete,
 }: ReviewsPageProps) {
     const [reviewWords, setReviewWords] = useState<FlashcardWord[]>([]);
-    const [currentIndex, setCurrentIndex] = useState(0);
     const [isFlipped, setIsFlipped] = useState(false);
     const [loading, setLoading] = useState(false);
     const [reviewComplete, setReviewComplete] = useState(false);
@@ -62,7 +60,6 @@ export default function ReviewsPage({
             setLoading(false);
             setReviewComplete(false);
             setReviewStats({ correct: 0, incorrect: 0 });
-            setCurrentIndex(0);
             setIsFlipped(false);
             setHasFlipped(false);
         }
@@ -80,14 +77,15 @@ export default function ReviewsPage({
         }));
     };
 
-    const handleReview = async (word: string, isCorrect: boolean) => {
 
+
+    const handleReview = async (word: string, isCorrect: boolean) => {
         try {
             await reviewFlashcard(word, isCorrect);
 
             updateReviewStats(isCorrect);
 
-            const [currentCard] = words.splice(currentIndex, 1);
+            const [currentCard] = words.splice(0, 1);
 
             updateCardState(currentCard, isCorrect, words);
 
@@ -97,8 +95,6 @@ export default function ReviewsPage({
 
             if (words.length === 0) {
                 setReviewComplete(true);
-            } else {
-                setCurrentIndex(Math.min(currentIndex, words.length - 1));
             }
         } catch (error) {
             console.error("Error reviewing word:", error);
@@ -271,7 +267,7 @@ export default function ReviewsPage({
                             {/* Static word/key display - fixed position */}
                             <div className="text-center h-[60px] flex items-center justify-center">
                                 <h3 className="text-2xl font-bold text-purple-700 dark:text-purple-400">
-                                    {reviewWords[currentIndex].key}
+                                    {reviewWords[0].key}
                                 </h3>
                             </div>
 
@@ -320,9 +316,7 @@ export default function ReviewsPage({
                                                 Meanings
                                             </h4>
                                             <ul className="space-y-2">
-                                                {reviewWords[
-                                                    currentIndex
-                                                ].meanings.map(
+                                                {reviewWords[0].meanings.map(
                                                     (meaning, index) => (
                                                         <motion.li
                                                             key={index}
@@ -364,7 +358,7 @@ export default function ReviewsPage({
                                     <button
                                         onClick={() =>
                                             handleReview(
-                                                reviewWords[currentIndex].key,
+                                                reviewWords[0].key,
                                                 false
                                             )
                                         }
@@ -388,7 +382,7 @@ export default function ReviewsPage({
                                     <button
                                         onClick={() =>
                                             handleReview(
-                                                reviewWords[currentIndex].key,
+                                                reviewWords[0].key,
                                                 true
                                             )
                                         }

@@ -1,14 +1,8 @@
 import type React from "react";
 import { useState } from "react";
+import { HeaderProps } from "../types";
 
-interface HeaderProps {
-    activeTab: string;
-    onTabChange: (tab: string) => void;
-    onLogout?: () => void;
-    enableDarkMode: () => void;
-    disableDarkMode: () => void;
-    reviewCount: number;
-}
+
 
 const Header: React.FC<HeaderProps> = ({
     activeTab,
@@ -162,7 +156,7 @@ const Header: React.FC<HeaderProps> = ({
                                     {item.name}
                                     {item.id === "reviews" &&
                                         reviewCount > 0 && (
-                                            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                            <span id="reviewCount" className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                                                 {reviewCount}
                                             </span>
                                         )}
@@ -312,7 +306,7 @@ const Header: React.FC<HeaderProps> = ({
                                 {item.icon}
                                 {item.name}
                                 {item.id === "reviews" && reviewCount > 0 && (
-                                    <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                    <span id="reviewCount" className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                                         {reviewCount}
                                     </span>
                                 )}

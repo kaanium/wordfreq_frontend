@@ -5,12 +5,8 @@ import {
     addWordsBulkToFlashcard,
     getWordsFromFlashcard,
 } from "../../services/FlashcardService";
+import { PopupProps } from "../../types";
 
-interface PopupProps {
-    title: string;
-    items: { word: string; frequency: number; meanings: string[] }[];
-    onClose: () => void;
-}
 
 const Popup: React.FC<PopupProps> = ({ title, items, onClose }) => {
     const [searchTerm, setSearchTerm] = useState("");
