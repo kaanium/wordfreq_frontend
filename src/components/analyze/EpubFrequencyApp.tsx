@@ -1,16 +1,17 @@
 import type React from "react";
 import { useState } from "react";
 import ePub from "epubjs";
-import Popup from "./AnalyzePopup";
 import AnalyzeButton from "./AnalyzeButton";
 import { wordAnalyzer } from "../../utils/WordAnalyzer";
 
-const EpubFrequencyApp = () => {
+interface EpubFrequencyAppProps {
+    onAnalysisComplete?: (words: any[]) => void;
+}
+
+const EpubFrequencyApp: React.FC<EpubFrequencyAppProps> = ({
+    onAnalysisComplete,
+}) => {
     const [file, setFile] = useState<File | null>(null);
-    const [commonWords, setCommonWords] = useState<
-        { word: string; frequency: number; meanings: string[] }[]
-    >([]);
-    const [showPopup, setShowPopup] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
 
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,8 +54,7 @@ const EpubFrequencyApp = () => {
             file,
             true,
             setIsProcessing,
-            setCommonWords,
-            setShowPopup,
+            onAnalysisComplete,
             extractTextFromEpub
         );
     };
@@ -189,14 +189,6 @@ const EpubFrequencyApp = () => {
                     </button>
                 </div>
             </div>
-
-            {showPopup && (
-                <Popup
-                    title="Most Common Words"
-                    items={commonWords}
-                    onClose={() => setShowPopup(false)}
-                />
-            )}
         </div>
     );
 };

@@ -17,3 +17,7 @@ code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
         monospace;
 }
+
+input[type="checkbox"] { /* change "blue" browser chrome to yellow */
+    accent-color: rgb(147, 51, 234);
+  }

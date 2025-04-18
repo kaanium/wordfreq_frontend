@@ -5,8 +5,7 @@ export const wordAnalyzer = async (
     input: string | File | null,
     isFile: boolean,
     setIsProcessing: (value: boolean) => void,
-    setCommonWords: (words: { word: string; frequency: number; meanings: string[] }[]) => void,
-    setShowPopup: (value: boolean) => void,
+    onAnalysisComplete?: (words: any[]) => void,
     extractTextFromEpub?: (file: File) => Promise<string>
 ) => {
     if (isFile && (!input || !(input instanceof File))) return;
@@ -30,8 +29,7 @@ export const wordAnalyzer = async (
             (a: { frequency: number }, b: { frequency: number }) =>
                 b.frequency - a.frequency
         );
-        setCommonWords(sortedWords);
-        setShowPopup(true);
+        onAnalysisComplete && onAnalysisComplete(sortedWords);
     } catch (error) {
         console.error("Error processing input:", error);
     } finally {

@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { wordAnalyzer } from "../../utils/WordAnalyzer";
 import AnalyzeButton from "./AnalyzeButton";
-import Popup from "./AnalyzePopup";
 
-const WordFrequencyApp = () => {
+interface WordFrequencyAppProps {
+    onAnalysisComplete?: (words: any[]) => void;
+}
+
+const WordFrequencyApp: React.FC<WordFrequencyAppProps> = ({
+    onAnalysisComplete,
+}) => {
     const [inputText, setInputText] = useState("");
-    const [commonWords, setCommonWords] = useState<
-        { word: string; frequency: number; meanings: string[] }[]
-    >([]);
-    const [showPopup, setShowPopup] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
 
     const handleButtonClick = async () => {
@@ -16,8 +17,7 @@ const WordFrequencyApp = () => {
             inputText,
             false,
             setIsProcessing,
-            setCommonWords,
-            setShowPopup
+            onAnalysisComplete
         );
     };
 
@@ -121,14 +121,6 @@ const WordFrequencyApp = () => {
                     </button>
                 </div>
             </div>
-
-            {showPopup && (
-                <Popup
-                    title="Most Common Words"
-                    items={commonWords}
-                    onClose={() => setShowPopup(false)}
-                />
-            )}
         </div>
     );
 };

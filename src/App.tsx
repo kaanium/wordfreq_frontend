@@ -1,12 +1,18 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import WordFrequencyApp from "./components/analyze/WordFrequencyApp";
 import EpubFrequencyApp from "./components/analyze/EpubFrequencyApp";
 import ReviewsPage from "./components/Reviews";
+import Popup from "./components/analyze/AnalyzePopup";
 import AuthPage from "./components/authentication/AuthPage";
 import Header from "./components/Header";
 import { getUser } from "./services/AuthenticationService";
-import { getReviewWordsFromFlashcard } from "./services/FlashcardService";
-import { FlashcardWord } from "./types";
+import {
+    getReviewWordsFromFlashcard,
+    getWordsFromFlashcard,
+} from "./services/FlashcardService";
+import type { FlashcardWord } from "./types";
 
 const App = () => {
     const [activeTab, setActiveTab] = useState("text");
@@ -14,30 +20,34 @@ const App = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [reviewWords, setReviewWords] = useState<FlashcardWord[]>([]);
     const [reviewCount, setReviewCount] = useState(0);
+    const [lastAnalyzedWords, setLastAnalyzedWords] = useState<any[]>([]);
+    const [isPopupVisible, setIsPopupVisible] = useState(false);
+    const [existingWords, setExistingWords] = useState<string[]>([]);
 
     const enableDarkMode = () => {
-        document.body.classList.add('dark');
-        localStorage.setItem('theme', 'dark');
-    }
-    const  disableDarkMode = () => {
-        document.body.classList.remove('dark');
-        localStorage.setItem('theme', 'light');
-    }
-    
+        document.body.classList.add("dark");
+        localStorage.setItem("theme", "dark");
+    };
+    const disableDarkMode = () => {
+        document.body.classList.remove("dark");
+        localStorage.setItem("theme", "light");
+    };
+
     const detectColorScheme = () => {
-        let theme: string | null = 'light';
-    
-        if (localStorage.getItem('theme')) {
-            theme = localStorage.getItem('theme');
-        }
-        else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            theme = 'dark';
+        let theme: string | null = "light";
+
+        if (localStorage.getItem("theme")) {
+            theme = localStorage.getItem("theme");
+        } else if (
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches
+        ) {
+            theme = "dark";
         }
 
-    
-        theme === 'dark' ? enableDarkMode() : disableDarkMode();
-    }
-    
+        theme === "dark" ? enableDarkMode() : disableDarkMode();
+    };
+
     detectColorScheme();
 
     const handleLogin = async () => {
@@ -87,6 +97,34 @@ const App = () => {
         }
     };
 
+    const fetchExistingWords = async () => {
+        try {
+            const response = await getWordsFromFlashcard();
+            if (response) {
+                const data = await response.json();
+                if (data && data.length > 0) {
+                    setExistingWords(
+                        data.map((card: any) => card.key.toLowerCase())
+                    );
+                }
+            }
+        } catch (error) {
+            console.error("Error fetching existing words:", error);
+        }
+    };
+
+    const handleOpenLastAnalysis = () => {
+        if (lastAnalyzedWords.length > 0) {
+            setIsPopupVisible(true);
+        }
+    };
+
+    const handleAnalyzeComplete = async (words: any[]) => {
+        await fetchExistingWords();
+        setLastAnalyzedWords(words);
+        setIsPopupVisible(true);
+    }
+
     useEffect(() => {
         getUser()
             .then((response) => {
@@ -124,13 +162,17 @@ const App = () => {
             case "text":
                 return (
                     <>
-                        <WordFrequencyApp />
+                        <WordFrequencyApp
+                            onAnalysisComplete={handleAnalyzeComplete}
+                        />
                     </>
                 );
             case "epub":
                 return (
                     <>
-                        <EpubFrequencyApp />
+                        <EpubFrequencyApp
+                            onAnalysisComplete={handleAnalyzeComplete}
+                        />
                     </>
                 );
             case "reviews":
@@ -143,7 +185,11 @@ const App = () => {
                     </>
                 );
             default:
-                return <WordFrequencyApp />;
+                return (
+                    <WordFrequencyApp
+                        onAnalysisComplete={handleAnalyzeComplete}
+                    />
+                );
         }
     };
 
@@ -175,6 +221,36 @@ const App = () => {
                             {renderActiveComponent()}
                         </div>
                     </main>
+                    {user &&
+                        lastAnalyzedWords.length > 0 &&
+                        !isPopupVisible && (
+                            <button
+                                onClick={handleOpenLastAnalysis}
+                                className="fixed bottom-6 right-6 bg-purple-600 hover:bg-purple-700 text-white rounded-full p-3 shadow-lg transition-all duration-300 flex items-center justify-center z-40"
+                                title="Show last analysis"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-6 w-6"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                >
+                                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                                </svg>
+                            </button>
+                        )}
+                    {isPopupVisible && (
+                        <Popup
+                            title="Word Analysis"
+                            items={lastAnalyzedWords}
+                            onClose={() => setIsPopupVisible(false)}
+                            initialExistingWords={existingWords}
+                        />
+                    )}
                 </div>
             ) : (
                 <div className="min-h-screen flex items-center justify-center bg-gradient-to-b dark:from-[#121218] dark:to-[#121218] from-gray-50 to-gray-100 py-12 px-4">
