@@ -28,7 +28,10 @@ const TapSafeDiv: React.FC<TapSafeDivProps> = ({
         (e: React.MouseEvent | React.TouchEvent) => {
             const tapStart = tapStartTimeRef.current;
 
-            if (tapStart && Date.now() - tapStart > 200) {
+            if (
+                (tapStart && Date.now() - tapStart > 200) ||
+                ("button" in e && e.button !== 0)
+            ) {
                 e.preventDefault();
                 return;
             }
@@ -47,7 +50,7 @@ const TapSafeDiv: React.FC<TapSafeDivProps> = ({
                     isLockedRef.current = false;
                 }
                 isExecutingRef.current = false;
-            }, 200);
+            }, 250);
         },
         [onClick]
     );
