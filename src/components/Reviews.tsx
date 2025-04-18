@@ -278,7 +278,7 @@ export default function ReviewsPage({
                     </button>
                 </div>
             ) : (<div>
-                    <h1 className="text-3xl justify-between font-extrabold text-center mb-8 text-gray-800 dark:text-[#F8F8FC] flex items-center gap-2">
+                    <h1 className="ml-4 text-3xl justify-between font-extrabold text-center mb-8 text-gray-800 dark:text-[#F8F8FC] flex items-center gap-2">
                         <div></div>
                         <div className="flex items-center gap-2">
                             <svg
@@ -430,7 +430,7 @@ export default function ReviewsPage({
                                                 false
                                             )
                                         }
-                                        className="flex-1 flex items-center justify-center bg-gray-200 dark:bg-[#32324A] hover:bg-gray-300 dark:hover:bg-[#2F2F47] text-gray-800 dark:text-[#F8F8FC] font-medium rounded-lg px-6 py-4 transition duration-300"
+                                        className="flex-1 flex items-center justify-center bg-gray-200 dark:bg-[#32324A] hover:bg-gray-300 dark:hover:bg-[#2F2F47] text-gray-800 dark:text-[#F8F8FC] font-medium rounded-lg px-6 py-4 transition duration-300 transform hover:-translate-y-1"
                                     >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
