@@ -119,7 +119,7 @@ const App = () => {
 
     const closeModalOnClickOutside = (e: MouseEvent) => {
         const a = document.querySelector("#popup");
-        if (a && !a.contains(e.target as Node)) {
+        if (a && !a.contains(e.target as Node) && e.button === 0) {
             setIsPopupVisible(false);
             document.removeEventListener("mousedown", closeModalOnClickOutside);
         }
