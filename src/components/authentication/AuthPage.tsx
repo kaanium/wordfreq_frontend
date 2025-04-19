@@ -11,7 +11,7 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
   const switchToRegister = (): void => setCurrentPage("register")
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-b from-white to-gray-50 dark:from-[#1E1E2A] dark:to-[#1E1E2A] rounded-3xl shadow-xl border border-gray-100 dark:border-[#32324A] p-4">
+    <div className="relative overflow-hidden bg-white dark:bg-[#1E1E2A] rounded-3xl shadow-xl border border-gray-100 dark:border-[#32324A] p-4">
       <div className="flex justify-center mb-6">
         <div className="flex items-center">
           <div className="h-10 w-10 rounded-md bg-gradient-to-r from-purple-600 to-purple-800 flex items-center justify-center text-white mr-2">
