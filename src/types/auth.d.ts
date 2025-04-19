@@ -30,3 +30,10 @@ export type LoginErrors = {
     email: string;
     password: string;
 };
+
+export type User = {
+    id: string;
+    username: string;
+    email: string;
+    reviewCount: number;
+};

@@ -4,7 +4,7 @@ import {
     reviewFlashcard,
     updateReviewCount,
 } from "../services/FlashcardService";
-import { FlashcardWord, ReviewsPageProps } from "../types";
+import { Word, ReviewsPageProps } from "../types";
 
 interface TapSafeDivProps extends React.HTMLAttributes<HTMLDivElement> {
     onClick: () => void;
@@ -72,9 +72,9 @@ const TapSafeDiv: React.FC<TapSafeDivProps> = ({
 };
 
 function updateCardState(
-    currentCard: FlashcardWord,
+    currentCard: Word,
     isCorrect: boolean,
-    words: FlashcardWord[]
+    words: Word[]
 ) {
     if (!isCorrect) {
         if (
@@ -110,7 +110,7 @@ export default function ReviewsPage({
     words,
     onReviewComplete,
 }: ReviewsPageProps) {
-    const [reviewWords, setReviewWords] = useState<FlashcardWord[]>(
+    const [reviewWords, setReviewWords] = useState<Word[]>(
         () => words
     );
     const [isFlipped, setIsFlipped] = useState(false);
@@ -199,7 +199,7 @@ export default function ReviewsPage({
                         No Words to Review
                     </h2>
                     <p className="text-gray-600 dark:text-[#A0A0B8] mb-6">
-                        You don't have any words due for review today. Check
+                        You don&apos;t have any words due for review today. Check
                         back later or add more words to your flashcards.
                     </p>
                 </div>

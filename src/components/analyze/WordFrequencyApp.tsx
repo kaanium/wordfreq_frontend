@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { wordAnalyzer } from "../../utils/WordAnalyzer";
 import AnalyzeButton from "./AnalyzeButton";
+import { FrequencyPageProps } from "../../types";
 
-interface WordFrequencyAppProps {
-    onAnalysisComplete?: (words: any[]) => void;
-}
 
-const WordFrequencyApp: React.FC<WordFrequencyAppProps> = ({
+const WordFrequencyApp: React.FC<FrequencyPageProps> = ({
     onAnalysisComplete,
 }) => {
     const [inputText, setInputText] = useState("");

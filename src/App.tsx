@@ -12,15 +12,15 @@ import {
     getReviewWordsFromFlashcard,
     getWordsFromFlashcard,
 } from "./services/FlashcardService";
-import type { FlashcardWord } from "./types";
+import type { FlashcardWord, Word, User } from "./types";
 
 const App = () => {
     const [activeTab, setActiveTab] = useState("text");
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
-    const [reviewWords, setReviewWords] = useState<FlashcardWord[]>([]);
+    const [reviewWords, setReviewWords] = useState<Word[]>([]);
     const [reviewCount, setReviewCount] = useState(0);
-    const [lastAnalyzedWords, setLastAnalyzedWords] = useState<any[]>([]);
+    const [lastAnalyzedWords, setLastAnalyzedWords] = useState<FlashcardWord[]>([]);
     const [isPopupVisible, setIsPopupVisible] = useState(false);
     const [existingWords, setExistingWords] = useState<string[]>([]);
 
@@ -49,7 +49,11 @@ const App = () => {
             theme = "dark";
         }
 
-        theme === "dark" ? enableDarkMode() : disableDarkMode();
+        if (theme === "dark") {
+            enableDarkMode();
+        } else {
+            disableDarkMode();
+        }
     };
 
     detectColorScheme();
@@ -108,7 +112,7 @@ const App = () => {
                 const data = await response.json();
                 if (data && data.length > 0) {
                     setExistingWords(
-                        data.map((card: any) => card.key.toLowerCase())
+                        data.map((card: Word) => card.key.toLowerCase())
                     );
                 }
             }
@@ -136,7 +140,7 @@ const App = () => {
         }
     };
 
-    const handleAnalyzeComplete = async (words: any[]) => {
+    const handleAnalyzeComplete = async (words: FlashcardWord[]) => {
         await fetchExistingWords();
         setLastAnalyzedWords(words);
         openModal();

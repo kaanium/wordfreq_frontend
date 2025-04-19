@@ -45,10 +45,11 @@ export default function Login({ onLogin, onSwitchToRegister }: LoginProps) {
                 setErrorMessage(response.error);
             }
             onLogin();
-        } catch (err: any) {
-            console.error(err.message);
+        } catch (err: unknown) {
+            const error = err as Error;
+            console.error(error.message);
             const errorObj = JSON.parse(
-                err.message.replace("Both APIs failed: ", "")
+                error.message.replace("Both APIs failed: ", "")
             );
             setErrorMessage(errorObj.error);
         }
@@ -199,7 +200,7 @@ export default function Login({ onLogin, onSwitchToRegister }: LoginProps) {
                     </button>
                 </form>
                 <div className="text-sm text-center text-gray-500 dark:text-[#A0A0B8]">
-                    <span>Don't have an account? </span>
+                    <span>Don&apos;t have an account? </span>
                     <button
                         onClick={onSwitchToRegister}
                         className="font-medium text-purple-600 hover:underline"

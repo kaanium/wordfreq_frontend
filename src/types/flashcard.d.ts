@@ -1,4 +1,4 @@
-export interface FlashcardWord {
+export interface Word {
     id: string;
     key: string;
     meanings: string[];
@@ -7,7 +7,13 @@ export interface FlashcardWord {
     state?: "learned" | "relearning1" | "relearning2";
 }
 
+export interface FlashcardWord {
+    word: string;
+    frequency: number;
+    meanings: string[];
+}
+
 export interface ReviewsPageProps {
-    words: FlashcardWord[];
+    words: Word[];
     onReviewComplete: () => void;
 }

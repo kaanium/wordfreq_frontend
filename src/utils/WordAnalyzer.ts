@@ -1,11 +1,12 @@
 import { extractWords } from "../services/ParserService";
 import { addMeaningsToList } from "../services/DictionaryService";
+import { FlashcardWord } from "../types";
 
 export const wordAnalyzer = async (
     input: string | File | null,
     isFile: boolean,
     setIsProcessing: (value: boolean) => void,
-    onAnalysisComplete?: (words: any[]) => void,
+    onAnalysisComplete?: (words: FlashcardWord[]) => void,
     extractTextFromEpub?: (file: File) => Promise<string>
 ) => {
     if (isFile && (!input || !(input instanceof File))) return;
@@ -30,7 +31,9 @@ export const wordAnalyzer = async (
             (a: { frequency: number }, b: { frequency: number }) =>
                 b.frequency - a.frequency
         );
-        onAnalysisComplete && onAnalysisComplete(sortedWords);
+        if (onAnalysisComplete) {
+            onAnalysisComplete(sortedWords);
+        }
     } catch (error) {
         console.error("Error processing input:", error);
     } finally {

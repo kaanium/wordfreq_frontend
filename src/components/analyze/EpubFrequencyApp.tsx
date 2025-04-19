@@ -3,12 +3,9 @@ import { useState } from "react";
 import ePub from "epubjs";
 import AnalyzeButton from "./AnalyzeButton";
 import { wordAnalyzer } from "../../utils/WordAnalyzer";
+import { FrequencyPageProps, SpineItem } from "../../types";
 
-interface EpubFrequencyAppProps {
-    onAnalysisComplete?: (words: any[]) => void;
-}
-
-const EpubFrequencyApp: React.FC<EpubFrequencyAppProps> = ({
+const EpubFrequencyApp: React.FC<FrequencyPageProps> = ({
     onAnalysisComplete,
 }) => {
     const [file, setFile] = useState<File | null>(null);
@@ -23,22 +20,25 @@ const EpubFrequencyApp: React.FC<EpubFrequencyAppProps> = ({
     const extractTextFromEpub = async (epubFile: File): Promise<string> => {
         const arrayBuffer = await epubFile.arrayBuffer();
         const book = ePub(arrayBuffer);
+
         await book.ready;
 
         const spineItems = book.spine;
         let fullText = "";
 
         const promises: Promise<void>[] = [];
-
-        spineItems.each((item: any) => {
+        spineItems.each((item: SpineItem) => {
+            const loadFn = book.load.bind(book) as (
+                url: string
+            ) => Promise<Document>;
             const p = item
-                .load(book.load.bind(book))
-                .then((loaded: any) => {
-                    const text = loaded?.textContent || "";
+                .load(loadFn)
+                .then((loadedDoc: Document) => {
+                    const text = loadedDoc?.textContent || "";
                     fullText += text + "\n";
                     item.unload();
                 })
-                .catch((err: any) => {
+                .catch((err: unknown) => {
                     console.warn("Failed to load item:", err);
                 });
 

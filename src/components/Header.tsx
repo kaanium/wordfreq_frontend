@@ -2,8 +2,6 @@ import type React from "react";
 import { useState } from "react";
 import { HeaderProps } from "../types";
 
-
-
 const Header: React.FC<HeaderProps> = ({
     activeTab,
     onTabChange,
@@ -97,7 +95,11 @@ const Header: React.FC<HeaderProps> = ({
 
     const handleThemeToggle = () => {
         setIsDarkMode(!isDarkMode);
-        localStorage.getItem('theme') === 'light' ? enableDarkMode() : disableDarkMode();
+        if (localStorage.getItem("theme") === "light") {
+            enableDarkMode();
+        } else {
+            disableDarkMode();
+        }
     };
 
     return (
@@ -156,7 +158,10 @@ const Header: React.FC<HeaderProps> = ({
                                     {item.name}
                                     {item.id === "reviews" &&
                                         reviewCount > 0 && (
-                                            <span id="reviewCount" className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                            <span
+                                                id="reviewCount"
+                                                className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800"
+                                            >
                                                 {reviewCount}
                                             </span>
                                         )}
@@ -191,13 +196,43 @@ const Header: React.FC<HeaderProps> = ({
                                 >
                                     <circle cx="12" cy="12" r="5"></circle>
                                     <line x1="12" y1="1" x2="12" y2="3"></line>
-                                    <line x1="12" y1="21" x2="12" y2="23"></line>
-                                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                    <line
+                                        x1="12"
+                                        y1="21"
+                                        x2="12"
+                                        y2="23"
+                                    ></line>
+                                    <line
+                                        x1="4.22"
+                                        y1="4.22"
+                                        x2="5.64"
+                                        y2="5.64"
+                                    ></line>
+                                    <line
+                                        x1="18.36"
+                                        y1="18.36"
+                                        x2="19.78"
+                                        y2="19.78"
+                                    ></line>
                                     <line x1="1" y1="12" x2="3" y2="12"></line>
-                                    <line x1="21" y1="12" x2="23" y2="12"></line>
-                                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                                    <line
+                                        x1="21"
+                                        y1="12"
+                                        x2="23"
+                                        y2="12"
+                                    ></line>
+                                    <line
+                                        x1="4.22"
+                                        y1="19.78"
+                                        x2="5.64"
+                                        y2="18.36"
+                                    ></line>
+                                    <line
+                                        x1="18.36"
+                                        y1="5.64"
+                                        x2="19.78"
+                                        y2="4.22"
+                                    ></line>
                                 </svg>
                             ) : (
                                 <svg
@@ -306,7 +341,10 @@ const Header: React.FC<HeaderProps> = ({
                                 {item.icon}
                                 {item.name}
                                 {item.id === "reviews" && reviewCount > 0 && (
-                                    <span id="reviewCount" className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                    <span
+                                        id="reviewCount"
+                                        className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800"
+                                    >
                                         {reviewCount}
                                     </span>
                                 )}
@@ -338,14 +376,54 @@ const Header: React.FC<HeaderProps> = ({
                                         strokeLinejoin="round"
                                     >
                                         <circle cx="12" cy="12" r="5"></circle>
-                                        <line x1="12" y1="1" x2="12" y2="3"></line>
-                                        <line x1="12" y1="21" x2="12" y2="23"></line>
-                                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                                        <line x1="1" y1="12" x2="3" y2="12"></line>
-                                        <line x1="21" y1="12" x2="23" y2="12"></line>
-                                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                                        <line
+                                            x1="12"
+                                            y1="1"
+                                            x2="12"
+                                            y2="3"
+                                        ></line>
+                                        <line
+                                            x1="12"
+                                            y1="21"
+                                            x2="12"
+                                            y2="23"
+                                        ></line>
+                                        <line
+                                            x1="4.22"
+                                            y1="4.22"
+                                            x2="5.64"
+                                            y2="5.64"
+                                        ></line>
+                                        <line
+                                            x1="18.36"
+                                            y1="18.36"
+                                            x2="19.78"
+                                            y2="19.78"
+                                        ></line>
+                                        <line
+                                            x1="1"
+                                            y1="12"
+                                            x2="3"
+                                            y2="12"
+                                        ></line>
+                                        <line
+                                            x1="21"
+                                            y1="12"
+                                            x2="23"
+                                            y2="12"
+                                        ></line>
+                                        <line
+                                            x1="4.22"
+                                            y1="19.78"
+                                            x2="5.64"
+                                            y2="18.36"
+                                        ></line>
+                                        <line
+                                            x1="18.36"
+                                            y1="5.64"
+                                            x2="19.78"
+                                            y2="4.22"
+                                        ></line>
                                     </svg>
                                     Light Mode
                                 </>
