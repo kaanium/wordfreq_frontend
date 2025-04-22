@@ -9,4 +9,5 @@ export interface PopupProps {
 
 export interface FrequencyPageProps {
     onAnalysisComplete?: (words: FlashcardWord[]) => void;
+    onFileUpload?: (file: File | null) => void; 
 }

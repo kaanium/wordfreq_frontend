@@ -7,13 +7,18 @@ import { FrequencyPageProps, SpineItem } from "../../types";
 
 const EpubFrequencyApp: React.FC<FrequencyPageProps> = ({
     onAnalysisComplete,
+    onFileUpload,
 }) => {
     const [file, setFile] = useState<File | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
 
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files[0]) {
-            setFile(event.target.files[0]);
+            const file = event.target.files[0];
+            setFile(file);
+            if (onFileUpload) {
+                onFileUpload(file);
+            }
         }
     };
 

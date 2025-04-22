@@ -5,6 +5,7 @@ import WordFrequencyApp from "./components/analyze/WordFrequencyApp";
 import EpubFrequencyApp from "./components/analyze/EpubFrequencyApp";
 import ReviewsPage from "./components/Reviews";
 import Popup from "./components/analyze/AnalyzePopup";
+import EpubViewer from "./components/viewer/EpubViewer";
 import AuthPage from "./components/authentication/AuthPage";
 import Header from "./components/Header";
 import { getUser } from "./services/AuthenticationService";
@@ -20,9 +21,23 @@ const App = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [reviewWords, setReviewWords] = useState<Word[]>([]);
     const [reviewCount, setReviewCount] = useState(0);
-    const [lastAnalyzedWords, setLastAnalyzedWords] = useState<FlashcardWord[]>([]);
+    const [lastAnalyzedWords, setLastAnalyzedWords] = useState<FlashcardWord[]>(
+        []
+    );
     const [isPopupVisible, setIsPopupVisible] = useState(false);
     const [existingWords, setExistingWords] = useState<string[]>([]);
+    const [isEpubViewerVisible, setIsEpubViewerVisible] = useState(false);
+    const [epubFile, setEpubFile] = useState<File | null>(null);
+
+    const handleOpenEpubViewer = () => {
+        if (epubFile) {
+            setIsEpubViewerVisible(true);
+        }
+    };
+
+    const handleEpubUpload = (file: File | null) => {
+        setEpubFile(file);
+    };
 
     const enableDarkMode = () => {
         document.body.classList.add("dark");
@@ -193,6 +208,7 @@ const App = () => {
                     <>
                         <EpubFrequencyApp
                             onAnalysisComplete={handleAnalyzeComplete}
+                            onFileUpload={handleEpubUpload}
                         />
                     </>
                 );
@@ -242,6 +258,34 @@ const App = () => {
                             {renderActiveComponent()}
                         </div>
                     </main>
+                    {user && epubFile && !isEpubViewerVisible && (
+                        <button
+                            onClick={handleOpenEpubViewer}
+                            className="fixed bottom-6 right-20 bg-purple-600 hover:bg-purple-700 text-white rounded-full p-3 shadow-lg transition-all duration-300 flex items-center justify-center z-40"
+                            title="Open EPUB Viewer"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-6 w-6"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                            </svg>
+                        </button>
+                    )}
+
+                    {isEpubViewerVisible && (
+                        <EpubViewer
+                            file={epubFile}
+                            onClose={() => setIsEpubViewerVisible(false)}
+                        />
+                    )}
                     {user &&
                         lastAnalyzedWords.length > 0 &&
                         !isPopupVisible && (
