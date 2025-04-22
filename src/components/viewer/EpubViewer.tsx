@@ -4,15 +4,14 @@ import ePub from "epubjs";
 import type { Book, Rendition } from "epubjs";
 import jsonDictionary from "../../assets/optimized-dictionary.json";
 import { unconjugate } from "jp-conjugation";
-
-type OptimizedDictionary = Record<string, string[] | null>;
+import {
+    EpubViewerProps,
+    OptimizedDictionary,
+    TextPosition,
+    PopupElements,
+} from "../../types";
 
 let dictionary: OptimizedDictionary = jsonDictionary as OptimizedDictionary;
-
-interface EpubViewerProps {
-    file: File | null;
-    onClose: () => void;
-}
 
 const EpubViewer = ({ file, onClose }: EpubViewerProps) => {
     const viewerRef = useRef<HTMLDivElement>(null);
@@ -31,17 +30,6 @@ const EpubViewer = ({ file, onClose }: EpubViewerProps) => {
         if (!file || !viewerRef.current) return;
 
         let isMounted = true;
-
-        interface PopupElements {
-            popup: HTMLDivElement;
-            title: HTMLDivElement;
-            meaningList: HTMLUListElement;
-        }
-
-        interface TextPosition {
-            node: Text;
-            offset: number;
-        }
 
         const initializeEpub = async (): Promise<void> => {
             try {
@@ -65,7 +53,6 @@ const EpubViewer = ({ file, onClose }: EpubViewerProps) => {
                     if (rendition) {
                         rendition.destroy();
                     }
-                    rendition.destroy();
                 };
             } catch (error) {
                 console.error("Error initializing EPUB:", error);
@@ -172,8 +159,7 @@ const EpubViewer = ({ file, onClose }: EpubViewerProps) => {
 
         const setupPopupDictionary = (rendition: any): void => {
             rendition.on("rendered", () => {
-                const iframe = viewerRef.current?.querySelector("iframe");
-                const doc = iframe?.contentDocument;
+                const doc = getDocument();
                 if (!doc) return;
 
                 injectPopupStyles(doc);
@@ -606,19 +592,19 @@ const EpubViewer = ({ file, onClose }: EpubViewerProps) => {
         }
     };
 
-    const toggleFullscreen = () => {
-        if (!viewerRef.current) return;
+    // const toggleFullscreen = () => {
+    //     if (!viewerRef.current) return;
 
-        if (!document.fullscreenElement) {
-            viewerRef.current.requestFullscreen().catch((err) => {
-                console.error(
-                    `Error attempting to enable fullscreen: ${err.message}`
-                );
-            });
-        } else {
-            document.exitFullscreen();
-        }
-    };
+    //     if (!document.fullscreenElement) {
+    //         viewerRef.current.requestFullscreen().catch((err) => {
+    //             console.error(
+    //                 `Error attempting to enable fullscreen: ${err.message}`
+    //             );
+    //         });
+    //     } else {
+    //         document.exitFullscreen();
+    //     }
+    // };
 
     if (!file) return null;
 
@@ -668,6 +654,7 @@ const EpubViewer = ({ file, onClose }: EpubViewerProps) => {
                     <div className="flex space-x-2">
                         <button
                             onClick={goPrev}
+                            id="prev"
                             className="p-2 bg-gray-100 dark:bg-[#2A2A3A] rounded-md hover:bg-gray-200 dark:hover:bg-[#32324A] text-gray-700 dark:text-[#F8F8FC]"
                             title="Previous page"
                         >
@@ -687,6 +674,7 @@ const EpubViewer = ({ file, onClose }: EpubViewerProps) => {
 
                         <button
                             onClick={goNext}
+                            id="next"
                             className="p-2 bg-gray-100 dark:bg-[#2A2A3A] rounded-md hover:bg-gray-200 dark:hover:bg-[#32324A] text-gray-700 dark:text-[#F8F8FC]"
                             title="Next page"
                         >
@@ -704,7 +692,7 @@ const EpubViewer = ({ file, onClose }: EpubViewerProps) => {
                             </svg>
                         </button>
                     </div>
-                    <button
+                    {/* <button
                         onClick={toggleFullscreen}
                         className="p-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md"
                         title="Toggle fullscreen"
@@ -721,7 +709,7 @@ const EpubViewer = ({ file, onClose }: EpubViewerProps) => {
                                 clipRule="evenodd"
                             />
                         </svg>
-                    </button>
+                    </button> */}
                 </div>
             </div>
         </div>
