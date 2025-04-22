@@ -3,13 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import ePub from "epubjs";
 import type { Book, Rendition } from "epubjs";
 import jsonDictionary from "../../assets/optimized-dictionary.json";
-import { unconjugate } from "jp-conjugation";
-import {
-    EpubViewerProps,
-    OptimizedDictionary,
-    TextPosition,
-    PopupElements,
-} from "../../types";
+import { EpubViewerProps, OptimizedDictionary } from "../../types";
+import { setupPopupDictionary } from "../../utils/EpubPopup";
 
 let dictionary: OptimizedDictionary = jsonDictionary as OptimizedDictionary;
 
@@ -41,13 +36,18 @@ const EpubViewer = ({ file, onClose }: EpubViewerProps) => {
 
                 const rendition = createRendition(book);
                 setupThemes(rendition);
-                setupPopupDictionary(rendition);
+                setupPopupDictionary(rendition, dictionary);
 
                 await rendition.display();
 
                 if (isMounted) {
                     setRendition(rendition);
                 }
+
+                document.addEventListener(
+                    "mousedown",
+                    closeModalOnClickOutside
+                );
 
                 cleanupRef.current = () => {
                     if (rendition) {
@@ -155,308 +155,6 @@ const EpubViewer = ({ file, onClose }: EpubViewerProps) => {
                 },
             });
             rendition.themes.select("custom");
-        };
-
-        const setupPopupDictionary = (rendition: any): void => {
-            rendition.on("rendered", () => {
-                const doc = getDocument();
-                if (!doc) return;
-
-                injectPopupStyles(doc);
-                const popup = createPopupElement(doc);
-                setupMouseInteractions(doc, popup);
-            });
-        };
-
-        const injectPopupStyles = (doc: Document): void => {
-            const style = doc.createElement("style");
-            style.textContent = `
-                @keyframes fadeIn {
-                    from { opacity: 0; transform: translateY(5px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-                @keyframes fadeOut {
-                    from { opacity: 1; transform: translateY(0); }
-                    to { opacity: 0; transform: translateY(5px); }
-                }
-                li::marker {
-                    content: "";
-                }
-                .meaning-popup {
-                    position: absolute;
-                    padding: 12px 16px;
-                    background: #fcfcf7;
-                    writing-mode: horizontal-tb;
-                    color: #2a2a2a;
-                    border-radius: 8px;
-                    font-family: 'Georgia', 'Times New Roman', serif;
-                    font-size: 15px;
-                    line-height: 1.5;
-                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
-                    pointer-events: none;
-                    z-index: 9999;
-                    max-width: 300px;
-                    opacity: 0;
-                    border-left: 3px solid rgb(126 34 206);
-                    animation: fadeIn 0.2s ease forwards;
-                }
-                .meaning-popup.hiding {
-                    animation: fadeOut 0.15s ease forwards;
-                }
-                .meaning-title {
-                    font-weight: bold;
-                    direction: initial;
-                    margin-bottom: 6px;
-                    color: #1a1a1a;
-                    font-size: 16px;
-                    border-bottom: 1px solid rgba(0,0,0,0.08);
-                    padding-bottom: 4px;
-                }
-                .meaning-list {
-                    padding: 0;
-                    margin: 0;
-                    list-style-position: inside;
-                }
-                .meaning-item {
-                    margin-bottom: 4px;
-                    position: relative;
-                    padding-left: 12px;
-                    direction: initial;
-                }
-                .meaning-item:before {
-                    content: "•";
-                    position: absolute;
-                    left: 0;
-                    color: rgb(126 34 206);
-                }
-                .meaning-item:last-child {
-                    margin-bottom: 0;
-                }
-            `;
-            doc.head.appendChild(style);
-        };
-
-        const createPopupElement = (doc: Document): PopupElements => {
-            const popup = doc.createElement("div");
-            popup.className = "meaning-popup";
-            popup.style.display = "none";
-
-            const title = doc.createElement("div");
-            title.className = "meaning-title";
-
-            const meaningList = doc.createElement("ul");
-            meaningList.className = "meaning-list";
-
-            popup.appendChild(title);
-            popup.appendChild(meaningList);
-            doc.body.appendChild(popup);
-
-            return { popup, title, meaningList };
-        };
-
-        const setupMouseInteractions = (
-            doc: Document,
-            elements: PopupElements
-        ): void => {
-            let isPopupVisible = false;
-            let hideTimeout: number | undefined;
-
-            const { popup, title, meaningList } = elements;
-
-            (
-                doc.querySelectorAll(
-                    "p, h1, h2, h3, h4, h5, h6"
-                ) as unknown as HTMLElement[]
-            ).forEach((p: HTMLElement) => {
-                p.addEventListener("mousemove", (e: Event) =>
-                    handleMouseMove(
-                        e as MouseEvent,
-                        doc,
-                        popup,
-                        title,
-                        meaningList
-                    )
-                );
-                p.addEventListener("mouseleave", () => hidePopup(popup));
-            });
-
-            function hidePopup(popup: HTMLDivElement): void {
-                if (isPopupVisible) {
-                    popup.classList.add("hiding");
-                    hideTimeout = window.setTimeout(() => {
-                        popup.style.display = "none";
-                        isPopupVisible = false;
-                    }, 150); // Match animation duration
-                }
-            }
-
-            function handleMouseMove(
-                e: MouseEvent,
-                doc: Document,
-                popup: HTMLDivElement,
-                title: HTMLDivElement,
-                meaningList: HTMLUListElement
-            ): void {
-                const mouseEvent = e;
-
-                // Clear any pending hide operations
-                if (hideTimeout) {
-                    clearTimeout(hideTimeout);
-                }
-
-                const textPosition = getTextPositionFromMouse(mouseEvent, doc);
-                if (!textPosition) {
-                    hidePopup(popup);
-                    return;
-                }
-
-                const { node, offset } = textPosition;
-                const text = node.nodeValue ?? "";
-                if (!text) return;
-
-                const dictionaryMatch = findLongestMatch(text, offset);
-                if (!dictionaryMatch) {
-                    hidePopup(popup);
-                    return;
-                }
-
-                const [matchedWord, meanings] = dictionaryMatch;
-
-                if (meanings && meanings.length > 0) {
-                    updatePopupContent(
-                        matchedWord,
-                        meanings,
-                        title,
-                        meaningList,
-                        doc
-                    );
-                    positionPopup(popup, mouseEvent);
-
-                    // Show popup with animation
-                    popup.classList.remove("hiding");
-                    popup.style.display = "block";
-                    isPopupVisible = true;
-                } else {
-                    hidePopup(popup);
-                }
-            }
-
-            function getTextPositionFromMouse(
-                mouseEvent: MouseEvent,
-                doc: Document
-            ): TextPosition | null {
-                const docWithCaretPos = doc as Document & {
-                    caretPositionFromPoint?: (
-                        x: number,
-                        y: number
-                    ) => {
-                        offsetNode: Node;
-                        offset: number;
-                    };
-                };
-
-                const pos = docWithCaretPos.caretPositionFromPoint?.(
-                    mouseEvent.clientX,
-                    mouseEvent.clientY - 7
-                );
-
-                if (!pos) return null;
-
-                const range = doc.createRange();
-                range.setStart(pos.offsetNode, pos.offset);
-                range.setEnd(pos.offsetNode, pos.offset);
-
-                if (
-                    !range ||
-                    !range.startContainer ||
-                    range.startContainer.nodeType !== Node.TEXT_NODE
-                ) {
-                    return null;
-                }
-
-                return {
-                    node: range.startContainer as Text,
-                    offset: range.startOffset,
-                };
-            }
-
-            function updatePopupContent(
-                word: string,
-                meanings: string[],
-                title: HTMLDivElement,
-                meaningList: HTMLUListElement,
-                doc: Document
-            ): void {
-                title.textContent = word;
-                meaningList.innerHTML = "";
-
-                meanings.forEach((meaning: string) => {
-                    const item = doc.createElement("li");
-                    item.className = "meaning-item";
-                    item.textContent = meaning;
-                    meaningList.appendChild(item);
-                });
-            }
-
-            function positionPopup(
-                popup: HTMLDivElement,
-                mouseEvent: MouseEvent
-            ): void {
-                const offset = 15;
-                const xPosition = mouseEvent.pageX;
-                const yPosition = mouseEvent.pageY;
-                const iframe = document.querySelector("iframe");
-                const window = iframe?.contentWindow as Window;
-
-                const viewportWidth = window.innerWidth;
-                const viewportHeight = window.innerHeight;
-                const popupWidth = popup.clientWidth;
-                const popupHeight = popup.clientHeight;
-
-                const checkRightOverflow =
-                    xPosition + popupWidth < viewportWidth;
-                const checkBottomOverflow =
-                    yPosition + popupHeight < viewportHeight;
-
-                popup.style.left = `${
-                    checkRightOverflow
-                        ? xPosition + offset
-                        : xPosition - popup.clientWidth - offset
-                }px`;
-                popup.style.top = `${
-                    checkBottomOverflow
-                        ? yPosition + offset
-                        : yPosition - popup.clientHeight - offset
-                }px`;
-            }
-        };
-
-        const findLongestMatch = (
-            text: string,
-            offset: number
-        ): [string, string[] | null] | null => {
-            const maxLookahead = 10;
-            const limit = Math.min(text.length, offset + maxLookahead);
-
-            for (let end = limit; end > offset; end--) {
-                const slice = text.slice(offset, end);
-
-                // Check unconjugated forms
-                const unconjugatedForms = unconjugate(slice);
-                for (const form of unconjugatedForms) {
-                    const word = form[0].word;
-                    if (dictionary[word]) {
-                        return [word, dictionary[word]];
-                    }
-                }
-
-                // Direct match in dictionary
-                if (dictionary[slice]) {
-                    return [slice, dictionary[slice]];
-                }
-            }
-
-            return null;
         };
 
         initializeEpub();
@@ -574,11 +272,26 @@ const EpubViewer = ({ file, onClose }: EpubViewerProps) => {
         displayPage(elements, currentPageIndex, paragraphsPerPage);
     };
 
+    const goToFirstPage = async () => {
+        const doc = getDocument();
+        if (!doc) return;
+
+        const elements = getTextElements(doc);
+        if (elements.length === 0) return;
+
+        const viewportHeight = getViewportHeight();
+
+        paragraphsPerPage = calculateVisibleCount(elements, viewportHeight);
+
+        displayPage(elements, 0, paragraphsPerPage);
+    };
+
     const goNext = async () => {
         const condition = await remainingParagraphChecker("next");
         if (rendition && condition) {
             if (rendition) await rendition.next();
             resetParagraphCalculation();
+            await goToFirstPage();
         }
     };
 
@@ -592,25 +305,22 @@ const EpubViewer = ({ file, onClose }: EpubViewerProps) => {
         }
     };
 
-    // const toggleFullscreen = () => {
-    //     if (!viewerRef.current) return;
-
-    //     if (!document.fullscreenElement) {
-    //         viewerRef.current.requestFullscreen().catch((err) => {
-    //             console.error(
-    //                 `Error attempting to enable fullscreen: ${err.message}`
-    //             );
-    //         });
-    //     } else {
-    //         document.exitFullscreen();
-    //     }
-    // };
+    const closeModalOnClickOutside = (e: MouseEvent) => {
+        const a = document.querySelector("#popup");
+        if (a && !a.contains(e.target as Node) && e.button === 0) {
+            handleClose();
+            document.removeEventListener("mousedown", closeModalOnClickOutside);
+        }
+    };
 
     if (!file) return null;
 
     return (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-[#1E1E2A] rounded-xl shadow-2xl w-full max-w-5xl h-[90vh] flex flex-col">
+            <div
+                id="popup"
+                className="bg-white dark:bg-[#1E1E2A] rounded-xl shadow-2xl w-full max-w-5xl h-[90vh] flex flex-col"
+            >
                 <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-[#32324A]">
                     <div>
                         <h2 className="text-lg font-semibold text-gray-800 dark:text-[#F8F8FC]">
