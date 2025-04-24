@@ -418,12 +418,14 @@ function setupMouseInteractions(
 
         // Update popup content
         updatePopupContent(word, meanings, reading, title, meaningList, doc);
-        positionPopup(popup, mouseEvent);
 
         // Show popup
         popup.classList.remove("hiding");
         popup.style.display = "block";
         isPopupVisible = true;
+
+        positionPopup(popup, mouseEvent);
+
 
         // Check if word exists
         checkIfWordExists(word).then((exists) => {
