@@ -6,20 +6,42 @@ import { addWordFlashcard, isExists } from "../services/FlashcardService";
 interface HoverState {
     timeoutId: number | null;
     lastWord: string | null;
+    lastX: number;
+    lastY: number;
 }
 
 export function setupPopupDictionary(
     rendition: any,
     dictionary: OptimizedDictionary
-): void {
+): () => void {
+    let cleanupFunctions: (() => void)[] = [];
+
     rendition.on("rendered", () => {
         const doc = getDocument();
         if (!doc) return;
 
-        injectPopupStyles(doc);
-        const popup = createPopupElement(doc);
-        setupMouseInteractions(doc, popup, dictionary);
+        // Cleanup previous instance if exists
+        cleanupFunctions.forEach((fn) => fn());
+        cleanupFunctions = [];
+
+        const styleCleanup = injectPopupStyles(doc);
+        const popupElements = createPopupElement(doc);
+        const mouseInteractionsCleanup = setupMouseInteractions(
+            doc,
+            popupElements, // Pass the full popupElements object
+            dictionary
+        );
+
+        cleanupFunctions.push(
+            styleCleanup,
+            popupElements.cleanup,
+            mouseInteractionsCleanup
+        );
     });
+
+    return () => {
+        cleanupFunctions.forEach((fn) => fn());
+    };
 }
 
 function getDocument(): Document | null {
@@ -27,7 +49,7 @@ function getDocument(): Document | null {
     return iframe?.contentDocument ?? null;
 }
 
-function injectPopupStyles(doc: Document): void {
+function injectPopupStyles(doc: Document): () => void {
     const style = doc.createElement("style");
     style.textContent = `
         @keyframes fadeIn {
@@ -167,10 +189,17 @@ function injectPopupStyles(doc: Document): void {
         }
     `;
     doc.head.appendChild(style);
+
+    return () => {
+        if (doc.head.contains(style)) {
+            doc.head.removeChild(style);
+        }
+    };
 }
 
 interface EnhancedPopupElements extends PopupElements {
     addButton: HTMLButtonElement;
+    cleanup: () => void;
 }
 
 function createPopupElement(doc: Document): EnhancedPopupElements {
@@ -199,19 +228,31 @@ function createPopupElement(doc: Document): EnhancedPopupElements {
     popup.appendChild(meaningList);
     doc.body.appendChild(popup);
 
-    return { popup, title, meaningList, addButton };
+    return {
+        popup,
+        title,
+        meaningList,
+        addButton,
+        cleanup: () => {
+            if (doc.body.contains(popup)) {
+                doc.body.removeChild(popup);
+            }
+        },
+    };
 }
 
 function setupMouseInteractions(
     doc: Document,
     elements: EnhancedPopupElements,
     dictionary: OptimizedDictionary
-): void {
+): () => void {
     let isPopupVisible = false;
     let hideTimeout: number | undefined;
     const hoverState: HoverState = {
         timeoutId: null,
         lastWord: null,
+        lastX: 0,
+        lastY: 0,
     };
     let currentWord = "";
     let currentMeanings: string[] = [];
@@ -226,25 +267,23 @@ function setupMouseInteractions(
     popup.classList.add("interactive");
 
     // Add event listeners for popup interaction
-    popup.addEventListener("mouseenter", () => {
+    const popupMouseEnterHandler = () => {
         if (hideTimeout) {
             clearTimeout(hideTimeout);
         }
-    });
+    };
 
-    popup.addEventListener("mouseleave", () => {
+    const popupMouseLeaveHandler = () => {
         hidePopup(popup);
-    });
+    };
 
-    // Add document click handler to close popup when clicking outside
-    doc.addEventListener("click", (e) => {
+    const docClickHandler = (e: MouseEvent) => {
         if (isPopupVisible && !popup.contains(e.target as Node)) {
             hidePopup(popup);
         }
-    });
+    };
 
-    // Add button click handler
-    addButton.addEventListener("click", async (e) => {
+    const addButtonClickHandler = async (e: MouseEvent) => {
         e.stopPropagation();
 
         if (isAddingWord || isWordExists) return;
@@ -264,39 +303,49 @@ function setupMouseInteractions(
                 isWordExists = true;
 
                 // Reset button after 2 seconds
-                setTimeout(() => {
+                const successTimeout = window.setTimeout(() => {
                     updateAddButtonState("exists");
                 }, 2000);
+
+                cleanupFunctions.push(() => clearTimeout(successTimeout));
             } else {
                 updateAddButtonState("error");
 
                 // Reset button after 2 seconds
-                setTimeout(() => {
+                const errorTimeout = window.setTimeout(() => {
                     updateAddButtonState("normal");
                 }, 2000);
+
+                cleanupFunctions.push(() => clearTimeout(errorTimeout));
             }
         } catch (error) {
             console.error("Error adding word:", error);
             updateAddButtonState("error");
 
             // Reset button after 2 seconds
-            setTimeout(() => {
+            const errorTimeout = window.setTimeout(() => {
                 updateAddButtonState("normal");
             }, 2000);
+
+            cleanupFunctions.push(() => clearTimeout(errorTimeout));
         } finally {
             isAddingWord = false;
         }
-    });
+    };
 
     const textElements = doc.querySelectorAll("p, h1, h2, h3, h4, h5, h6");
+    const textElementHandlers: {
+        element: Element;
+        handlers: [string, EventListener][];
+    }[] = [];
     textElements.forEach((element) => {
-        element.addEventListener("mousemove", (e) => {
+        const mouseMoveHandler = (e: Event) => {
             handleHover(e as MouseEvent, doc, hoverState, () => {
                 showPopup(e as MouseEvent, doc, elements, dictionary);
             });
-        });
+        };
 
-        element.addEventListener("click", (e) => {
+        const clickHandler = (e: Event) => {
             const mouseEvent = e as MouseEvent;
             const match = getDictionaryMatchAtPosition(
                 mouseEvent,
@@ -317,8 +366,58 @@ function setupMouseInteractions(
 
                 e.preventDefault();
             }
+        };
+
+        element.addEventListener("mousemove", mouseMoveHandler);
+        element.addEventListener("click", clickHandler);
+
+        textElementHandlers.push({
+            element,
+            handlers: [
+                ["mousemove", mouseMoveHandler],
+                ["click", clickHandler],
+            ],
         });
     });
+
+    const mousemoveHandler = (e: MouseEvent) => {
+        hoverState.lastX = e.clientX;
+        hoverState.lastY = e.clientY;
+    };
+
+    const delayedMousemoveSetup = window.setTimeout(() => {
+        doc.addEventListener("mousemove", mousemoveHandler);
+    }, 100);
+
+    popup.addEventListener("mouseenter", popupMouseEnterHandler);
+    popup.addEventListener("mouseleave", popupMouseLeaveHandler);
+    doc.addEventListener("click", docClickHandler);
+    addButton.addEventListener("click", addButtonClickHandler);
+
+    const cleanupFunctions: (() => void)[] = [
+        () => {
+            popup.removeEventListener("mouseenter", popupMouseEnterHandler);
+            popup.removeEventListener("mouseleave", popupMouseLeaveHandler);
+            doc.removeEventListener("click", docClickHandler);
+            addButton.removeEventListener("click", addButtonClickHandler);
+            clearTimeout(delayedMousemoveSetup);
+            doc.removeEventListener("mousemove", mousemoveHandler);
+
+            if (hideTimeout) {
+                clearTimeout(hideTimeout);
+            }
+
+            if (hoverState.timeoutId) {
+                clearTimeout(hoverState.timeoutId);
+            }
+
+            textElementHandlers.forEach(({ element, handlers }) => {
+                handlers.forEach(([event, handler]) => {
+                    element.removeEventListener(event, handler);
+                });
+            });
+        },
+    ];
 
     function updateAddButtonState(
         state: "normal" | "loading" | "success" | "error" | "exists"
@@ -425,7 +524,6 @@ function setupMouseInteractions(
 
         positionPopup(popup, mouseEvent);
 
-
         // Check if word exists
         checkIfWordExists(word).then((exists) => {
             isWordExists = exists;
@@ -453,7 +551,33 @@ function setupMouseInteractions(
         const isSameWord = currentWord === state.lastWord;
 
         if (!isSameWord) {
-            state.timeoutId = window.setTimeout(callback, 150);
+            state.timeoutId = window.setTimeout(() => {
+                const syntheticEvent = new MouseEvent("mousemove", {
+                    clientX: hoverState.lastX,
+                    clientY: hoverState.lastY,
+                    bubbles: true,
+                    cancelable: true,
+                    view: window,
+                });
+                const newMatch = getDictionaryMatchAtPosition(
+                    syntheticEvent,
+                    doc,
+                    dictionary
+                );
+
+                if (!newMatch) {
+                    return;
+                }
+
+                const [newWord] = newMatch;
+                if (currentWord === newWord) callback();
+            }, 300);
+
+            cleanupFunctions.push(() => {
+                if (state.timeoutId) {
+                    clearTimeout(state.timeoutId);
+                }
+            });
         }
     }
 
@@ -516,6 +640,12 @@ function setupMouseInteractions(
                 // Reset button state
                 updateAddButtonState("normal");
             }, 150); // Match animation duration
+
+            cleanupFunctions.push(() => {
+                if (hideTimeout) {
+                    clearTimeout(hideTimeout);
+                }
+            });
         }
     }
 
@@ -637,6 +767,10 @@ function setupMouseInteractions(
                 : yPosition - popup.clientHeight - offset
         }px`;
     }
+
+    return () => {
+        cleanupFunctions.forEach((fn) => fn());
+    };
 }
 
 function findLongestMatch(

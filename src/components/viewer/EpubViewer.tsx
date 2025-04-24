@@ -91,7 +91,7 @@ const EpubViewer = ({ file, onClose }: EpubViewerProps) => {
                     "font-family": "'Georgia', 'Times New Roman', serif",
                     "line-height": "1.65",
                     color: "#2a2a2a",
-                    background: "#fcfcf7",
+                    background: "#fcfcf7 !important",
                     "font-size": "19px !important",
                     padding: "20px !important",
                     direction: "ltr",
