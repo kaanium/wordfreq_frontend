@@ -98,21 +98,12 @@ const EpubViewer = ({ file, onClose }: EpubViewerProps) => {
                     "text-rendering": "optimizeLegibility",
                     "-webkit-font-smoothing": "antialiased",
                 },
+                'body > div': {
+                    display: "inline-block",
+                },
                 p: {
                     margin: "0 0 1.2em 0",
                     "text-align": "justify",
-                },
-                image: {
-                    width: "100%",
-                    height: "128vh",
-                    "background-color": "black",
-                    display: "block",
-                    margin: "1.5em auto",
-                    padding: "0",
-                    "box-sizing": "border-box",
-                },
-                svg: {
-                    "max-height": "none !important",
                 },
                 h1: {
                     "font-size": "1.8em",
