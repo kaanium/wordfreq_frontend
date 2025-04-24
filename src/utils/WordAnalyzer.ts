@@ -1,5 +1,5 @@
 import { extractWords } from "../services/ParserService";
-import { addMeaningsToList } from "../services/DictionaryService";
+import { addEntriesToList } from "../services/DictionaryService";
 import { FlashcardWord } from "../types";
 
 export const wordAnalyzer = async (
@@ -24,7 +24,7 @@ export const wordAnalyzer = async (
 
         const wordsResponse = await extractWords(textContent);
         const words = await wordsResponse.json();
-        const response = await addMeaningsToList(words);
+        const response = await addEntriesToList(words);
         const result = await response.json();
 
         const sortedWords = result.sort(

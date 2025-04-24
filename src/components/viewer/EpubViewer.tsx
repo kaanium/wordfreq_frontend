@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import ePub from "epubjs";
 import type { Book, Rendition } from "epubjs";
-import jsonDictionary from "../../assets/optimized-dictionary.json";
+import jsonDictionary from "../../assets/optimized-dictionary-new.json";
 import { EpubViewerProps, OptimizedDictionary } from "../../types";
 import { setupPopupDictionary } from "../../utils/EpubPopup";
 

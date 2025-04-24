@@ -12,7 +12,7 @@ const getHideWordsCheck = () => {
     let check = false;
     const storedHideSetting = localStorage.getItem("hideKnownWords");
     if (storedHideSetting !== null) {
-        check = (storedHideSetting === "true");
+        check = storedHideSetting === "true";
     }
     return check;
 };
@@ -29,14 +29,17 @@ const Popup: React.FC<PopupProps> = ({
     const [isVisible, setIsVisible] = useState(false);
     const [existingWords, setExistingWords] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [hideKnownWords, setHideKnownWords] = useState<boolean>(
-        () => getHideWordsCheck()
+    const [hideKnownWords, setHideKnownWords] = useState<boolean>(() =>
+        getHideWordsCheck()
     );
     const [message, setMessage] = useState<{
         text: string;
         type: "success" | "error" | "info";
     } | null>(null);
     const itemsPerPage = 20;
+    const [expandedMeanings, setExpandedMeanings] = useState<
+        Record<string, boolean>
+    >({});
 
     useEffect(() => {
         localStorage.setItem("hideKnownWords", hideKnownWords.toString());
@@ -73,8 +76,6 @@ const Popup: React.FC<PopupProps> = ({
         }
     }, [message]);
 
-
-
     const resetScrollPosition = () => {
         const scrollableDiv = document.getElementById("scrollableDiv");
         if (scrollableDiv) {
@@ -87,10 +88,14 @@ const Popup: React.FC<PopupProps> = ({
         setTimeout(onClose, 300); // Wait for animation to complete
     };
 
-    const handleAddWord = async (word: string, meanings: string[]) => {
+    const handleAddWord = async (
+        word: string,
+        meanings: string[],
+        reading: string
+    ) => {
         setIsLoading(true);
         try {
-            const response = await addWordFlashcard(word, meanings);
+            const response = await addWordFlashcard(word, meanings, reading);
             if (response && response.ok) {
                 setMessage({
                     text: `Added "${word}" to flashcards`,
@@ -111,33 +116,26 @@ const Popup: React.FC<PopupProps> = ({
     const handleAddAllNewWords = async () => {
         setIsLoading(true);
         try {
-            const newWords = items
-                .filter(
-                    (item) =>
-                        !existingWords.includes(item.word.toLowerCase()) &&
-                        item.meanings &&
-                        item.meanings.length > 0
-                )
-                .map((item) => item.word);
+            const newWords: string[] = [];
+            const newMeanings: string[][] = [];
+            const newReadings: string[] = [];
 
-            const newMeanings = items
-                .filter(
-                    (item) =>
-                        !existingWords.includes(item.word.toLowerCase()) &&
-                        item.meanings &&
-                        item.meanings.length > 0
-                )
-                .map((item) => item.meanings);
+            for (const item of items) {
+                const word = item.word;
+                const isNew = !existingWords.includes(word);
+                const hasMeanings = item.meanings && item.meanings.length > 0;
 
-            if (newWords.length === 0) {
-                setMessage({ text: "No new words to add", type: "info" });
-                setIsLoading(false);
-                return;
+                if (isNew && hasMeanings) {
+                    newWords.push(item.word);
+                    newMeanings.push(item.meanings);
+                    newReadings.push(item.reading);
+                }
             }
 
             const response = await addWordsBulkToFlashcard(
                 newWords,
-                newMeanings
+                newMeanings,
+                newReadings
             );
             if (response && response.ok) {
                 setMessage({
@@ -376,7 +374,18 @@ const Popup: React.FC<PopupProps> = ({
                                                         : "text-gray-800 dark:text-[#F8F8FC]"
                                                 }`}
                                             >
-                                                {wordObj.word}
+                                                {wordObj.reading &&
+                                                wordObj.reading !==
+                                                    wordObj.word ? (
+                                                    <ruby className="text-lg leading-loose">
+                                                        {wordObj.word}
+                                                        <rt className="text-xs font-normal">
+                                                            {wordObj.reading}
+                                                        </rt>
+                                                    </ruby>
+                                                ) : (
+                                                    wordObj.word
+                                                )}
                                                 {isInDatabase && (
                                                     <span className="ml-2 text-xs bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-300 px-2 py-1 rounded-full">
                                                         In Flashcards
@@ -409,7 +418,8 @@ const Popup: React.FC<PopupProps> = ({
                                                         onClick={() =>
                                                             handleAddWord(
                                                                 wordObj.word,
-                                                                wordObj.meanings
+                                                                wordObj.meanings,
+                                                                wordObj.reading
                                                             )
                                                         }
                                                         disabled={isLoading}
@@ -446,35 +456,119 @@ const Popup: React.FC<PopupProps> = ({
                                         </div>
 
                                         <div className="mt-3 bg-white dark:bg-[#2A2A3A] p-3 rounded-lg border border-gray-100 dark:border-[#32324A]">
-                                            <h4 className="text-sm font-medium text-gray-500 dark:text-[#A0A0B8] mb-2 flex items-center">
-                                                <svg
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    className="h-3.5 w-3.5 mr-1"
-                                                    viewBox="0 0 24 24"
-                                                    fill="none"
-                                                    stroke="currentColor"
-                                                    strokeWidth="2"
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                >
-                                                    <path d="M12 20V10"></path>
-                                                    <path d="M18 20V4"></path>
-                                                    <path d="M6 20v-6"></path>
-                                                </svg>
-                                                Meanings:
+                                            <h4 className="text-sm font-medium text-gray-500 dark:text-[#A0A0B8] mb-2 flex items-center justify-between">
+                                                <span className="flex items-center">
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        className="h-3.5 w-3.5 mr-1"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        strokeWidth="2"
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                    >
+                                                        <path d="M12 20V10"></path>
+                                                        <path d="M18 20V4"></path>
+                                                        <path d="M6 20v-6"></path>
+                                                    </svg>
+                                                    Meanings:
+                                                </span>
+                                                {wordObj.meanings.length >
+                                                    5 && (
+                                                    <button
+                                                        onClick={() => {
+                                                            const expandedState =
+                                                                {
+                                                                    ...expandedMeanings,
+                                                                };
+                                                            expandedState[
+                                                                wordObj.word
+                                                            ] =
+                                                                !expandedState[
+                                                                    wordObj.word
+                                                                ];
+                                                            setExpandedMeanings(
+                                                                expandedState
+                                                            );
+                                                        }}
+                                                        className="text-xs text-purple-600 dark:text-purple-400 hover:underline flex items-center"
+                                                    >
+                                                        {expandedMeanings[
+                                                            wordObj.word
+                                                        ] ? (
+                                                            <>
+                                                                <svg
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                    className="h-3 w-3 mr-1"
+                                                                    viewBox="0 0 24 24"
+                                                                    fill="none"
+                                                                    stroke="currentColor"
+                                                                    strokeWidth="2"
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                >
+                                                                    <polyline points="18 15 12 9 6 15"></polyline>
+                                                                </svg>
+                                                                Show less
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <svg
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                    className="h-3 w-3 mr-1"
+                                                                    viewBox="0 0 24 24"
+                                                                    fill="none"
+                                                                    stroke="currentColor"
+                                                                    strokeWidth="2"
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                >
+                                                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                                                </svg>
+                                                                Show all (
+                                                                {
+                                                                    wordObj
+                                                                        .meanings
+                                                                        .length
+                                                                }
+                                                                )
+                                                            </>
+                                                        )}
+                                                    </button>
+                                                )}
                                             </h4>
                                             <ul className="list-disc pl-5 space-y-1">
-                                                {wordObj.meanings.map(
-                                                    (meaning, i) => (
+                                                {wordObj.meanings
+                                                    .slice(
+                                                        0,
+                                                        expandedMeanings[
+                                                            wordObj.word
+                                                        ]
+                                                            ? undefined
+                                                            : 5
+                                                    )
+                                                    .map((meaning, i) => (
                                                         <li
                                                             key={i}
                                                             className="text-gray-700 dark:text-[#F8F8FC] text-sm"
                                                         >
                                                             {meaning}
                                                         </li>
-                                                    )
-                                                )}
+                                                    ))}
                                             </ul>
+                                            {!expandedMeanings[wordObj.word] &&
+                                                wordObj.meanings.length > 5 && (
+                                                    <div className="mt-1 pl-5">
+                                                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                                                            +
+                                                            {wordObj.meanings
+                                                                .length -
+                                                                5}{" "}
+                                                            more meanings
+                                                        </span>
+                                                    </div>
+                                                )}
                                         </div>
                                     </li>
                                 );

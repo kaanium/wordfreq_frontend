@@ -1,13 +1,13 @@
 import { API_URL } from "../config/constants";
 
-export async function addMeaningsToList(
+export async function addEntriesToList(
     list: { word: string; frequency: number }[]
 ) {
     const token = localStorage.getItem("token");
     if (!token) {
         throw new Error("Token is required");
     }
-    return await fetch(`${API_URL}/meanings`, {
+    return await fetch(`${API_URL}/entries`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

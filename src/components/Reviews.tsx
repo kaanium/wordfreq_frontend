@@ -1,10 +1,14 @@
+"use client";
+
+import type React from "react";
+
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     reviewFlashcard,
     updateReviewCount,
 } from "../services/FlashcardService";
-import { Word, ReviewsPageProps } from "../types";
+import type { Backendword, ReviewsPageProps } from "../types";
 
 interface TapSafeDivProps extends React.HTMLAttributes<HTMLDivElement> {
     onClick: () => void;
@@ -84,7 +88,11 @@ const TapSafeDiv: React.FC<TapSafeDivProps> = ({
     );
 };
 
-function updateCardState(currentCard: Word, isCorrect: boolean, words: Word[]) {
+function updateCardState(
+    currentCard: Backendword,
+    isCorrect: boolean,
+    words: Backendword[]
+) {
     if (!isCorrect) {
         if (
             currentCard.state === "learned" ||
@@ -109,7 +117,7 @@ function updateCardState(currentCard: Word, isCorrect: boolean, words: Word[]) {
 
 const updateRemainingWordCount = async () => {
     document.querySelectorAll("#reviewCount").forEach((el) => {
-        const count = parseInt(el.textContent || "0", 10);
+        const count = Number.parseInt(el.textContent || "0", 10);
         el.textContent = (count - 1).toString();
         updateReviewCount(count - 1);
     });
@@ -119,7 +127,7 @@ export default function ReviewsPage({
     words,
     onReviewComplete,
 }: ReviewsPageProps) {
-    const [reviewWords, setReviewWords] = useState<Word[]>(() => words);
+    const [reviewWords, setReviewWords] = useState<Backendword[]>(() => words);
     const [isFlipped, setIsFlipped] = useState(false);
     const [reviewComplete, setReviewComplete] = useState(false);
     const [reviewStats, setReviewStats] = useState({
@@ -133,8 +141,6 @@ export default function ReviewsPage({
             setReviewWords(words);
             setReviewComplete(false);
             setReviewStats({ correct: 0, incorrect: 0 });
-            // setIsFlipped(false);
-            // setHasFlipped(false);
         }
     }, [words]);
 
@@ -156,15 +162,15 @@ export default function ReviewsPage({
 
             updateReviewStats(isCorrect);
 
-            const [currentCard] = words.splice(0, 1);
+            const [currentCard] = reviewWords.splice(0, 1);
 
-            updateCardState(currentCard, isCorrect, words);
+            updateCardState(currentCard, isCorrect, reviewWords);
 
-            setReviewWords(words);
+            setReviewWords([...reviewWords]);
             setIsFlipped(false);
             setHasFlipped(false);
 
-            if (words.length === 0) {
+            if (reviewWords.length === 0) {
                 setReviewComplete(true);
             }
         } catch (error) {
@@ -350,7 +356,16 @@ export default function ReviewsPage({
                             <TapSafeDiv
                                 onClick={() => handleInitialFlip(!isFlipped)}
                             >
-                                <div className="text-center mb-4">
+                                <div className="text-center mb-4 relative">
+                                    <div
+                                        className={`text-s text-purple-700 dark:text-purple-400 mb-1 font-normal transition-opacity duration-200 ${
+                                            isFlipped && reviewWords[0].reading
+                                                ? "opacity-100"
+                                                : "opacity-0"
+                                        }`}
+                                    >
+                                        {reviewWords[0].reading}
+                                    </div>
                                     <h3 className="text-3xl font-bold text-purple-700 dark:text-purple-400">
                                         {reviewWords[0].key}
                                     </h3>

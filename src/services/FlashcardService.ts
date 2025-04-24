@@ -1,6 +1,10 @@
 import { API_URL } from "../config/constants";
 
-export async function addWordFlashcard(word: string, meanings: string[]) {
+export async function addWordFlashcard(
+    word: string,
+    meanings: string[],
+    reading: string
+) {
     const token = localStorage.getItem("token");
     if (!token) return null;
     return await fetch(`${API_URL}/add-word`, {
@@ -9,13 +13,14 @@ export async function addWordFlashcard(word: string, meanings: string[]) {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ word, meanings }),
+        body: JSON.stringify({ word, meanings, reading }),
     });
 }
 
 export async function addWordsBulkToFlashcard(
     words: string[],
-    meanings: string[][]
+    meanings: string[][],
+    readings: string[]
 ) {
     const token = localStorage.getItem("token");
     if (!token) return null;
@@ -25,7 +30,20 @@ export async function addWordsBulkToFlashcard(
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ words, meanings }),
+        body: JSON.stringify({ words, meanings, readings }),
+    });
+}
+
+export async function isExists(word: string) {
+    const token = localStorage.getItem("token");
+    if (!token) return null;
+    return await fetch(`${API_URL}/check-if-exists`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ word }),
     });
 }
 

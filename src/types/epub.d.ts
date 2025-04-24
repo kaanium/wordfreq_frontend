@@ -21,4 +21,9 @@ export interface EpubViewerProps {
     onClose: () => void;
 }
 
-export type OptimizedDictionary = Record<string, string[] | null>;
+interface OptimizedDictionary {
+    [word: string]: {
+        m: string[];
+        r: string;
+    };
+}

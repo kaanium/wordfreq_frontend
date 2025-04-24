@@ -13,13 +13,13 @@ import {
     getReviewWordsFromFlashcard,
     getWordsFromFlashcard,
 } from "./services/FlashcardService";
-import type { FlashcardWord, Word, User } from "./types";
+import type { FlashcardWord, Backendword, User } from "./types";
 
 const App = () => {
     const [activeTab, setActiveTab] = useState("text");
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
-    const [reviewWords, setReviewWords] = useState<Word[]>([]);
+    const [reviewWords, setReviewWords] = useState<Backendword[]>([]);
     const [reviewCount, setReviewCount] = useState(0);
     const [lastAnalyzedWords, setLastAnalyzedWords] = useState<FlashcardWord[]>(
         []
@@ -127,7 +127,7 @@ const App = () => {
                 const data = await response.json();
                 if (data && data.length > 0) {
                     setExistingWords(
-                        data.map((card: Word) => card.key.toLowerCase())
+                        data.map((card: Backendword) => card.key.toLowerCase())
                     );
                 }
             }
