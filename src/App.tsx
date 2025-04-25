@@ -95,6 +95,11 @@ const App = () => {
             localStorage.removeItem("token");
             setReviewWords([]);
             setReviewCount(0);
+            setLastAnalyzedWords([]);
+            setIsPopupVisible(false);
+            setExistingWords([]);
+            setIsEpubViewerVisible(false);
+            setEpubFile(null);
         } catch (error) {
             console.error("Logout failed:", error);
         }
