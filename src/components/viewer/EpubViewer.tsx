@@ -88,7 +88,8 @@ const EpubViewer = ({ file, onClose }: EpubViewerProps) => {
         const setupThemes = (rendition: any): void => {
             rendition.themes.register("custom", {
                 body: {
-                    "font-family": "'Georgia', 'Times New Roman', serif",
+                    "font-family":
+                        "'ヒラギノ角ゴ ProN' , 'Hiragino Kaku Gothic ProN' , '游ゴシック' , '游ゴシック体' , YuGothic , 'Yu Gothic' , 'メイリオ' , Meiryo , 'ＭＳ ゴシック' , 'MS Gothic' , HiraKakuProN-W3 , 'TakaoExゴシック' , TakaoExGothic , 'MotoyaLCedar' , 'Droid Sans Japanese' , sans-serif",
                     "line-height": "1.65",
                     color: "#2a2a2a",
                     background: "#fcfcf7 !important",
@@ -98,7 +99,7 @@ const EpubViewer = ({ file, onClose }: EpubViewerProps) => {
                     "text-rendering": "optimizeLegibility",
                     "-webkit-font-smoothing": "antialiased",
                 },
-                'body > div': {
+                "body > div": {
                     display: "inline-block",
                 },
                 p: {

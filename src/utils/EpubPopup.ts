@@ -89,6 +89,7 @@ function injectPopupStyles(doc: Document): () => void {
         }
         .meaning-title {
             font-weight: bold;
+            font-family: 'ヒラギノ角ゴ ProN' , 'Hiragino Kaku Gothic ProN' , '游ゴシック' , '游ゴシック体' , YuGothic , 'Yu Gothic' , 'メイリオ' , Meiryo , 'ＭＳ ゴシック' , 'MS Gothic' , HiraKakuProN-W3 , 'TakaoExゴシック' , TakaoExGothic , 'MotoyaLCedar' , 'Droid Sans Japanese' , sans-serif;
             direction: initial;
             margin-bottom: 6px;
             color: #1a1a1a;
@@ -652,7 +653,7 @@ function setupMouseInteractions(
     function getTextPositionFromMouse(
         mouseEvent: MouseEvent,
         doc: Document
-    ): { node: Text; offset: number } | null {
+    ): { node: Text; offset: number; fullText: string } | null {
         const docWithCaretPos = doc as Document & {
             caretPositionFromPoint?: (
                 x: number,
@@ -670,21 +671,72 @@ function setupMouseInteractions(
 
         if (!pos) return null;
 
-        const range = doc.createRange();
-        range.setStart(pos.offsetNode, pos.offset);
-        range.setEnd(pos.offsetNode, pos.offset);
+        let parent: Node | null = pos.offsetNode;
+        while (parent && parent.nodeName !== "P" && parent.parentNode) {
+            parent = parent.parentNode;
+        }
 
-        if (
-            !range ||
-            !range.startContainer ||
-            range.startContainer.nodeType !== Node.TEXT_NODE
-        ) {
+        if (!parent || parent.nodeName !== "P") {
             return null;
         }
 
+        const paragraphClone = parent.cloneNode(true) as HTMLElement;
+
+        paragraphClone.querySelectorAll("rt").forEach((rt) => rt.remove());
+
+        const fullText = paragraphClone.textContent || "";
+
+        const tempText = doc.createTextNode(fullText);
+
+        let offset = 0;
+
+        let node: Node | null = pos.offsetNode;
+        while (node && node !== parent) {
+            if (node.nodeName === "RT") {
+                return null;
+            }
+            node = node.parentNode;
+        }
+
+        if (pos.offsetNode.nodeType === Node.TEXT_NODE) {
+            const walker = doc.createTreeWalker(parent, NodeFilter.SHOW_TEXT, {
+                acceptNode: function (node) {
+                    let parent = node.parentNode;
+                    while (parent) {
+                        if (parent.nodeName === "RT") {
+                            return NodeFilter.FILTER_REJECT;
+                        }
+                        parent = parent.parentNode;
+                    }
+                    return NodeFilter.FILTER_ACCEPT;
+                },
+            });
+
+            let currentOffset = 0;
+            let found = false;
+            let textNode: Text;
+
+            while (walker.nextNode()) {
+                textNode = walker.currentNode as Text;
+
+                if (textNode === pos.offsetNode) {
+                    offset = currentOffset + pos.offset;
+                    found = true;
+                    break;
+                }
+
+                currentOffset += textNode.length;
+            }
+
+            if (!found) {
+                return null;
+            }
+        }
+
         return {
-            node: range.startContainer as Text,
-            offset: range.startOffset,
+            node: tempText,
+            offset: offset,
+            fullText: fullText,
         };
     }
 
