@@ -40,7 +40,11 @@ const EpubFrequencyApp: React.FC<FrequencyPageProps> = ({
                 .load(loadFn)
                 .then((loadedDoc: Document) => {
                     const text = loadedDoc?.textContent || "";
-                    fullText += text + "\n";
+                    fullText += text.replace(
+                        /[^\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}ー。、！？〜・「」『』（）【】《》〔〕［］｛｝]/gu,
+                        ""
+                    );
+
                     item.unload();
                 })
                 .catch((err: unknown) => {
