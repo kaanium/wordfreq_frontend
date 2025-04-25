@@ -11,6 +11,18 @@ export interface PopupElements {
     meaningList: HTMLUListElement;
 }
 
+export interface EnhancedPopupElements extends PopupElements {
+    addButton: HTMLButtonElement;
+    cleanup: () => void;
+}
+
+export interface HoverState {
+    timeoutId: number | null;
+    lastWord: string | null;
+    lastX: number;
+    lastY: number;
+}
+
 export interface TextPosition {
     node: Text;
     offset: number;
@@ -21,7 +33,7 @@ export interface EpubViewerProps {
     onClose: () => void;
 }
 
-interface OptimizedDictionary {
+export interface OptimizedDictionary {
     [word: string]: {
         m: string[];
         r: string;

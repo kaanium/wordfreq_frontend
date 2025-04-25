@@ -1,17 +1,15 @@
-import type { OptimizedDictionary, PopupElements } from "../types";
+import type {
+    OptimizedDictionary,
+    EnhancedPopupElements,
+    HoverState,
+} from "../types";
 import { unconjugate } from "jp-conjugation";
+import type { Rendition } from "epubjs";
 
 import { addWordFlashcard, isExists } from "../services/FlashcardService";
 
-interface HoverState {
-    timeoutId: number | null;
-    lastWord: string | null;
-    lastX: number;
-    lastY: number;
-}
-
 export function setupPopupDictionary(
-    rendition: any,
+    rendition: Rendition,
     dictionary: OptimizedDictionary
 ): () => void {
     let cleanupFunctions: (() => void)[] = [];
@@ -198,11 +196,6 @@ function injectPopupStyles(doc: Document): () => void {
     };
 }
 
-interface EnhancedPopupElements extends PopupElements {
-    addButton: HTMLButtonElement;
-    cleanup: () => void;
-}
-
 function createPopupElement(doc: Document): EnhancedPopupElements {
     const popup = doc.createElement("div");
     popup.className = "meaning-popup";
@@ -258,7 +251,6 @@ function setupMouseInteractions(
     let currentWord = "";
     let currentMeanings: string[] = [];
     let currentReading: string = "";
-    let isWordExistsChecking = false;
     let isWordExists = false;
     let isAddingWord = false;
 
@@ -480,7 +472,6 @@ function setupMouseInteractions(
 
     async function checkIfWordExists(word: string): Promise<boolean> {
         try {
-            isWordExistsChecking = true;
             updateAddButtonState("loading");
 
             const response = await isExists(word);
@@ -492,8 +483,6 @@ function setupMouseInteractions(
         } catch (error) {
             console.error("Error checking if word exists:", error);
             return false;
-        } finally {
-            isWordExistsChecking = false;
         }
     }
 

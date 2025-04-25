@@ -1,73 +1,121 @@
-// components/analyze/EpubViewer.tsx
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import ePub from "epubjs";
 import type { Book, Rendition } from "epubjs";
 import jsonDictionary from "../../assets/optimized-dictionary-new.json";
 import { EpubViewerProps, OptimizedDictionary } from "../../types";
 import { setupPopupDictionary } from "../../utils/EpubPopup";
 
-let dictionary: OptimizedDictionary = jsonDictionary as OptimizedDictionary;
+const dictionary: OptimizedDictionary = jsonDictionary as OptimizedDictionary;
 
 const EpubViewer = ({ file, onClose }: EpubViewerProps) => {
     const viewerRef = useRef<HTMLDivElement>(null);
     const cleanupRef = useRef<() => void>(() => {});
-    const [book, setBook] = useState<Book | null>(null);
     const [rendition, setRendition] = useState<Rendition | null>(null);
     const [metadata, setMetadata] = useState<{
         title?: string;
         creator?: string;
     }>({});
+    const currentPageIndex = useRef(0);
+    const pagesRef = useRef<HTMLElement[][]>([]);
 
-    let currentPageIndex = 0;
-    let paragraphsPerPage = 0;
+    const handleClose = useCallback(() => {
+        cleanupRef.current();
+        document.removeEventListener("mousedown", closeModalOnClickOutside);
+        onClose();
+    }, [onClose]);
 
+    const closeModalOnClickOutside = useCallback(
+        (e: MouseEvent) => {
+            const popup = document.querySelector("#popup");
+            if (popup && !popup.contains(e.target as Node) && e.button === 0) {
+                handleClose();
+            }
+        },
+        [handleClose]
+    );
+
+    const goNext = useCallback(async () => {
+        const condition = await remainingParagraphChecker("next");
+        if (rendition && condition) {
+            await rendition.next();
+            resetParagraphCalculation();
+            precalculatePages();
+            await goToFirstPage();
+        }
+    }, [rendition]);
+
+    const goPrev = useCallback(async () => {
+        const condition = await remainingParagraphChecker("prev");
+        if (rendition && condition) {
+            await rendition.prev();
+            resetParagraphCalculation();
+            precalculatePages();
+            // await goToFirstPage();
+
+            setTimeout(async () => {
+                await goToLastPage();
+            }, 10);
+        }
+    }, [rendition]);
+
+    // Keyboard event handling
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "ArrowRight") {
+                e.preventDefault();
+                goNext();
+            } else if (e.key === "ArrowLeft") {
+                e.preventDefault();
+                goPrev();
+            }
+        };
+
+        document.addEventListener("keydown", handleKeyDown);
+        return () => document.removeEventListener("keydown", handleKeyDown);
+    }, [goNext, goPrev]);
+
+    // EPUB initialization
     useEffect(() => {
         if (!file || !viewerRef.current) return;
 
         let isMounted = true;
+        let currentRendition: Rendition | null = null;
 
-        const initializeEpub = async (): Promise<void> => {
+        const initializeEpub = async () => {
             try {
-                const book = await loadBook();
+                const book = ePub(await file.arrayBuffer());
                 if (!isMounted) return;
 
-                setBook(book);
                 await loadMetadata(book);
 
-                const rendition = createRendition(book);
-                setupThemes(rendition);
-                setupPopupDictionary(rendition, dictionary);
+                currentRendition = book.renderTo(viewerRef.current!, {
+                    width: "100%",
+                    height: "100%",
+                    spread: "none",
+                    flow: "paginated",
+                });
 
-                await rendition.display();
+                setupThemes(currentRendition);
+                setupPopupDictionary(currentRendition, dictionary);
+                currentRendition.on("rendered", setupIframeNavigation);
 
-                if (isMounted) {
-                    setRendition(rendition);
-                }
+                await currentRendition.display();
+                precalculatePages();
+                if (isMounted) setRendition(currentRendition);
 
                 document.addEventListener(
                     "mousedown",
                     closeModalOnClickOutside
                 );
-
-                cleanupRef.current = () => {
-                    if (rendition) {
-                        rendition.destroy();
-                    }
-                };
+                cleanupRef.current = () => currentRendition?.destroy();
             } catch (error) {
                 console.error("Error initializing EPUB:", error);
             }
         };
 
-        const loadBook = async () => {
-            const arrayBuffer = await file.arrayBuffer();
-            return ePub(arrayBuffer);
-        };
-
-        const loadMetadata = async (book: any): Promise<void> => {
+        const loadMetadata = async (book: Book) => {
             await book.ready;
             const meta = await book.loaded.metadata;
-
             if (isMounted) {
                 setMetadata({
                     title: meta.title,
@@ -76,20 +124,11 @@ const EpubViewer = ({ file, onClose }: EpubViewerProps) => {
             }
         };
 
-        const createRendition = (book: any): any => {
-            return book.renderTo(viewerRef.current!, {
-                width: "100%",
-                height: "100%",
-                spread: "none",
-                flow: "paginated",
-            });
-        };
-
-        const setupThemes = (rendition: any): void => {
+        const setupThemes = (rendition: Rendition) => {
             rendition.themes.register("custom", {
                 body: {
                     "font-family":
-                        "'ヒラギノ角ゴ ProN' , 'Hiragino Kaku Gothic ProN' , '游ゴシック' , '游ゴシック体' , YuGothic , 'Yu Gothic' , 'メイリオ' , Meiryo , 'ＭＳ ゴシック' , 'MS Gothic' , HiraKakuProN-W3 , 'TakaoExゴシック' , TakaoExGothic , 'MotoyaLCedar' , 'Droid Sans Japanese' , sans-serif",
+                        "'ヒラギノ角ゴ ProN', 'Hiragino Kaku Gothic ProN', '游ゴシック', '游ゴシック体', YuGothic, 'Yu Gothic', 'メイリオ', Meiryo, 'ＭＳ ゴシック', 'MS Gothic', HiraKakuProN-W3, 'TakaoExゴシック', TakaoExGothic, 'MotoyaLCedar', 'Droid Sans Japanese', sans-serif",
                     "line-height": "1.65",
                     color: "#2a2a2a",
                     background: "#fcfcf7 !important",
@@ -99,13 +138,8 @@ const EpubViewer = ({ file, onClose }: EpubViewerProps) => {
                     "text-rendering": "optimizeLegibility",
                     "-webkit-font-smoothing": "antialiased",
                 },
-                "body > div": {
-                    display: "inline-block",
-                },
-                p: {
-                    margin: "0 0 1.2em 0",
-                    "text-align": "justify",
-                },
+                "body > div": { display: "inline-block" },
+                p: { margin: "0 0 1.2em 0", "text-align": "justify" },
                 h1: {
                     "font-size": "1.8em",
                     "font-weight": "700",
@@ -142,168 +176,153 @@ const EpubViewer = ({ file, onClose }: EpubViewerProps) => {
                     background: "#ddd",
                     margin: "2em 0",
                 },
-                ".chapter": {
-                    "page-break-after": "always",
-                },
+                ".chapter": { "page-break-after": "always" },
             });
             rendition.themes.select("custom");
+        };
+
+        const setupIframeNavigation = () => {
+            const iframeDoc = getDocument();
+            if (!iframeDoc) return;
+
+            const handleIframeKeyDown = (e: KeyboardEvent) => {
+                const parentDoc = window.document;
+                const nextButton = parentDoc.getElementById("next");
+                const prevButton = parentDoc.getElementById("prev");
+
+                if (e.key === "ArrowRight" && nextButton) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    nextButton.click();
+                } else if (e.key === "ArrowLeft" && prevButton) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    prevButton.click();
+                }
+            };
+
+            iframeDoc.addEventListener("keydown", handleIframeKeyDown);
+            return () =>
+                iframeDoc.removeEventListener("keydown", handleIframeKeyDown);
         };
 
         initializeEpub();
 
         return () => {
             isMounted = false;
-            rendition?.destroy();
-            book?.destroy();
+            currentRendition?.destroy();
         };
-    }, [file]);
+    }, [file, closeModalOnClickOutside]);
 
-    const handleClose = () => {
-        cleanupRef.current();
-        onClose();
-    };
-
-    const remainingParagraphChecker = async (
-        option?: "next" | "prev"
-    ): Promise<boolean> => {
-        const doc = getDocument();
-        if (!doc) return true;
-
-        const elements = getTextElements(doc);
-        if (elements.length === 0) return true;
-
-        const viewportHeight = getViewportHeight();
-        paragraphsPerPage = calculateVisibleCount(elements, viewportHeight);
-        const totalPages = Math.ceil(elements.length / paragraphsPerPage);
-
-        if (!updatePageIndex(option, totalPages)) return true;
-
-        displayPage(elements, currentPageIndex, paragraphsPerPage);
-        return false;
-    };
-
-    const getDocument = (): Document | null => {
+    const getDocument = useCallback((): Document | null => {
         const iframe = viewerRef.current?.querySelector("iframe");
         return iframe?.contentDocument ?? null;
-    };
+    }, []);
 
-    const getTextElements = (doc: Document): HTMLElement[] => {
+    const getTextElements = useCallback((doc: Document): HTMLElement[] => {
         return Array.from(
             doc.querySelectorAll("p, h1, h2, h3, h4, h5, h6")
         ) as HTMLElement[];
-    };
+    }, []);
 
-    const getViewportHeight = (): number => {
+    const getViewportHeight = useCallback((): number => {
         const iframe = viewerRef.current?.querySelector("iframe");
         return iframe?.getBoundingClientRect().height ?? 0;
-    };
+    }, []);
 
-    const calculateVisibleCount = (
-        elements: HTMLElement[],
-        height: number
-    ): number => {
+    const updatePageIndex = useCallback(
+        (option: "next" | "prev" | undefined, total: number): boolean => {
+            if (option === "next" && currentPageIndex.current < total - 1) {
+                currentPageIndex.current++;
+                return true;
+            }
+            if (option === "prev" && currentPageIndex.current > 0) {
+                currentPageIndex.current--;
+                return true;
+            }
+            return option === undefined;
+        },
+        []
+    );
+
+    const displayPage = useCallback((pageIndex: number) => {
+        const allPages = pagesRef.current;
+        if (!allPages.length) return;
+
+        const allElements = allPages.flat();
+        allElements.forEach((el) => (el.style.display = "none"));
+
+        const page = allPages[pageIndex] ?? [];
+        page.forEach((el) => (el.style.display = "block"));
+    }, []);
+
+    const remainingParagraphChecker = useCallback(
+        async (option?: "next" | "prev"): Promise<boolean> => {
+            const totalPages = pagesRef.current.length;
+            if (!updatePageIndex(option, totalPages)) return true;
+
+            displayPage(currentPageIndex.current);
+            return false;
+        },
+        [displayPage]
+    );
+
+    const resetParagraphCalculation = useCallback(() => {
+        currentPageIndex.current = 0;
+    }, []);
+
+    const goToPage = useCallback(
+        async (position: "first" | "last") => {
+            const totalPages = pagesRef.current.length;
+            const pageIndex = position === "first" ? 0 : totalPages - 1;
+
+            currentPageIndex.current = pageIndex;
+            displayPage(pageIndex);
+        },
+        [displayPage]
+    );
+
+    const goToLastPage = useCallback(async () => {
+        await goToPage("last");
+    }, [goToPage]);
+
+    const goToFirstPage = useCallback(async () => {
+        await goToPage("first");
+    }, [goToPage]);
+
+    const precalculatePages = useCallback(() => {
+        const doc = getDocument();
+        if (!doc) return;
+
+        const elements = getTextElements(doc);
+        if (elements.length === 0) return;
+
+        const height = getViewportHeight();
         elements.forEach((el) => (el.style.display = "block"));
 
-        let count = 0;
+        const pages: HTMLElement[][] = [];
+        let page: HTMLElement[] = [];
+        let currentTop = elements[0].getBoundingClientRect().top;
+
         for (const el of elements) {
-            if (el.getBoundingClientRect().bottom <= height) count++;
-            else break;
+            const rect = el.getBoundingClientRect();
+            if (rect.bottom - currentTop > height && page.length) {
+                pages.push(page);
+                page.map((p) => {
+                    p.style.display = "none";
+                });
+                page = [];
+                currentTop = rect.top;
+            }
+            page.push(el);
         }
+        if (page.length) pages.push(page);
 
+        // Hide all again
         elements.forEach((el) => (el.style.display = "none"));
-        return Math.max(1, count);
-    };
 
-    const updatePageIndex = (
-        option: "next" | "prev" | undefined,
-        total: number
-    ): boolean => {
-        if (option === "next" && currentPageIndex < total - 1) {
-            currentPageIndex++;
-            return true;
-        }
-        if (option === "prev" && currentPageIndex > 0) {
-            currentPageIndex--;
-            return true;
-        }
-        return option === undefined;
-    };
-
-    const displayPage = (
-        elements: HTMLElement[],
-        pageIndex: number,
-        count: number
-    ) => {
-        const start = pageIndex * count;
-        const end = start + count;
-
-        elements.forEach((el, i) => {
-            el.style.display = i >= start && i < end ? "block" : "none";
-        });
-    };
-
-    const resetParagraphCalculation = () => {
-        paragraphsPerPage = 0;
-        currentPageIndex = 0;
-    };
-
-    const goToLastPage = async () => {
-        const doc = getDocument();
-        if (!doc) return;
-
-        const elements = getTextElements(doc);
-        if (elements.length === 0) return;
-
-        const viewportHeight = getViewportHeight();
-
-        paragraphsPerPage = calculateVisibleCount(elements, viewportHeight);
-
-        const totalPages = Math.ceil(elements.length / paragraphsPerPage);
-        currentPageIndex = totalPages - 1;
-
-        displayPage(elements, currentPageIndex, paragraphsPerPage);
-    };
-
-    const goToFirstPage = async () => {
-        const doc = getDocument();
-        if (!doc) return;
-
-        const elements = getTextElements(doc);
-        if (elements.length === 0) return;
-
-        const viewportHeight = getViewportHeight();
-
-        paragraphsPerPage = calculateVisibleCount(elements, viewportHeight);
-
-        displayPage(elements, 0, paragraphsPerPage);
-    };
-
-    const goNext = async () => {
-        const condition = await remainingParagraphChecker("next");
-        if (rendition && condition) {
-            if (rendition) await rendition.next();
-            resetParagraphCalculation();
-            await goToFirstPage();
-        }
-    };
-
-    const goPrev = async () => {
-        const condition = await remainingParagraphChecker("prev");
-
-        if (rendition && condition) {
-            if (rendition) await rendition.prev();
-            resetParagraphCalculation();
-            await goToLastPage();
-        }
-    };
-
-    const closeModalOnClickOutside = (e: MouseEvent) => {
-        const a = document.querySelector("#popup");
-        if (a && !a.contains(e.target as Node) && e.button === 0) {
-            handleClose();
-            document.removeEventListener("mousedown", closeModalOnClickOutside);
-        }
-    };
+        pagesRef.current = pages;
+    }, [getDocument, getTextElements, getViewportHeight]);
 
     if (!file) return null;
 
@@ -394,24 +413,6 @@ const EpubViewer = ({ file, onClose }: EpubViewerProps) => {
                             </svg>
                         </button>
                     </div>
-                    {/* <button
-                        onClick={toggleFullscreen}
-                        className="p-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md"
-                        title="Toggle fullscreen"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                        >
-                            <path
-                                fillRule="evenodd"
-                                d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.414l2.293 2.293a1 1 0 01-1.414 1.414L5 6.414V8a1 1 0 01-2 0V4zm9 1a1 1 0 010-2h4a1 1 0 011 1v4a1 1 0 01-2 0V6.414l-2.293 2.293a1 1 0 11-1.414-1.414L13.586 5H12zm-9 7a1 1 0 012 0v1.586l2.293-2.293a1 1 0 111.414 1.414L6.414 15H8a1 1 0 010 2H4a1 1 0 01-1-1v-4zm13-1a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 010-2h1.586l-2.293-2.293a1 1 0 111.414-1.414L15 13.586V12a1 1 0 011-1z"
-                                clipRule="evenodd"
-                            />
-                        </svg>
-                    </button> */}
                 </div>
             </div>
         </div>
