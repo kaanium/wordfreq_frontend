@@ -1,46 +1,65 @@
-# Getting Started with Create React App
+# Japanese Word Frequency Analyzer + SRS WebApp
+https://wordfreqdb.netlify.app/
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A powerful and intuitive web application for Japanese language learners. Upload your **EPUBs** or **subtitle files**, and let the app:
 
-## Available Scripts
+* **Analyze word frequency** across the entire content.
+* **Display definitions** using a lightweight, custom-tailored version of **JMdict**.
+* Help you **learn the most frequent words** in the media you provided using a built-in **Spaced Repetition System (SRS)**.
+* **Read books online** with a smooth **hover dictionary** that allows one-click SRS additions.
 
-In the project directory, you can run:
+Built with **TypeScript**, **React**, and **Node.js** for speed, scalability, and responsiveness.
 
-### `npm start`
+## Features
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### 1. Word Frequency Analysis
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+Upload a Japanese **EPUB** or **subtitle file (.srt/.ass/.vtt)** and receive:
 
-### `npm test`
+* A sorted list of words based on frequency.
+* Definitions from a lightweight version of **JMdict**, optimized for this app.
+* Quick selection of unknown words to add to your SRS list.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+![Frequency Analysis](https://github.com/user-attachments/assets/e9c5054a-b318-4829-9e67-db075a80475d)
 
-### `npm run build`
+### 2. Spaced Repetition System (SRS)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Efficiently learn the words you're encountering most often:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+* Automatically schedules reviews.
+* Supports simple review UI with word, reading, and meaning.
+* Optimized intervals based on your progress.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+![SRS Page](https://github.com/user-attachments/assets/27616741-3963-4606-ae38-86a6fc99e3ce)
 
-### `npm run eject`
+### 3. Online EPUB Reader + Hover Dictionary
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+Read Japanese EPUBs directly in your browser:
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+* Hover over words to instantly see readings and definitions.
+* Add any word to your SRS list with a single click.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+![EPUB Reader](https://github.com/user-attachments/assets/527df139-9b5b-418e-833f-c8be068d6373)
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## Technologies Used
 
-## Learn More
+* **Frontend**: React, TypeScript, TailwindCSS
+* **Backend**: Node.js, Express
+* **Storage**: MongoDB
+* **Dictionary**: Custom-minified version of [JMdict](https://www.edrdg.org/jmdict/j_jmdict.html)
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Why This Project?
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Reading native Japanese content is one of the best ways to improve, but:
+
+* It's hard to know which words are important.
+* Existing tools are too heavy or not beginner-friendly.
+* You lose track of what you’ve seen and learned.
+
+This app solves that by giving you a **focused, frequency-based learning path**, all built into the reading experience itself.
+
+
+## Acknowledgements
+
+* [JMdict](https://www.edrdg.org/jmdict/j_jmdict.html) for the dictionary data.
+* Japanese learners and open source community for constant inspiration.
